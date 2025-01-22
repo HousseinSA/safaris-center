@@ -4,26 +4,42 @@ import { NextResponse } from "next/server";
 const uri = process.env.MONGODB_LINK!;
 const client = new MongoClient(uri);
 
-export async function GET() {
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const clientId = searchParams.get("id");
     try {
         await client.connect();
-        const database = client.db("your-database-name");
+        const database = client.db('your-database-name');
         const collection = database.collection("clients");
 
-        const clients = await collection.find().toArray();
-        return NextResponse.json(clients);
-    }
-    // catch (error) {
-    //     // @ts-expect-error fix
-    //     return NextResponse.json(
-    //         { error: "Failed to fetch clients" },
-    //         { status: 500 }
-    //     );
-    // }
-    finally {
+        if (clientId) {
+            // Fetch a specific client by _id
+            const objectId = new ObjectId(clientId);
+            const clientData = await collection.findOne({ _id: objectId });
+
+            if (!clientData) {
+                return NextResponse.json(
+                    { error: "Client not found" },
+                    { status: 404 }
+                );
+            }
+
+            return NextResponse.json(clientData);
+        } else {
+            const clients = await collection.find().toArray();
+            return NextResponse.json(clients);
+        }
+    } catch (error) {
+        console.error("Error fetching client(s):", error);
+        return NextResponse.json(
+            { error: "Failed to fetch client(s)" },
+            { status: 500 }
+        );
+    } finally {
         await client.close();
     }
 }
+
 
 export async function POST(request: Request) {
     const clientData = await request.json();
@@ -48,24 +64,22 @@ export async function POST(request: Request) {
 }
 
 
-
 export async function PUT(request: Request) {
-    const { id, ...clientData } = await request.json();
+    const { _id, ...clientData } = await request.json();
 
     try {
+
         await client.connect();
         const database = client.db("your-database-name");
         const collection = database.collection("clients");
 
-        // Convert id to ObjectId
-        const objectId = new ObjectId(id);
+        // Convert _id to ObjectId
+        const objectId = new ObjectId(_id);
 
         // Log the data being updated
-        console.log("Updating client with ID:", id);
-        console.log("New data:", clientData);
 
         const result = await collection.updateOne(
-            { _id: objectId }, // Use _id instead of id
+            { _id: objectId },
             { $set: clientData }
         );
 
@@ -75,9 +89,6 @@ export async function PUT(request: Request) {
                 { status: 404 }
             );
         }
-
-        // Log the result
-        console.log("Update result:", result);
 
         return NextResponse.json(result);
     } catch (error) {

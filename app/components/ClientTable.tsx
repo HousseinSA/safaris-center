@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
-import { Edit, Trash, Check, X, Phone, Briefcase, Banknote, CreditCard, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash, Check, X, Phone, Briefcase, Banknote, CreditCard, User, ChevronLeft, ChevronRight, TimerIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { format } from "date-fns"; // Import date-fns for date formatting
+import { format } from "date-fns";
+import { BeatLoader } from "react-spinners";
 import {
   Table,
   TableBody,
@@ -14,46 +15,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table";
-
-interface Service {
-  name: string;
-  price: number;
-}
-
-interface Client {
-  id: number;
-  name: string;
-  services: Service[];
-  paymentMethod: string;
-  upfrontPayment: number;
-  phoneNumber: string;
-  responsable: string;
-  totalPrice: number;
-  createdAt: string; // Creation date
-  updatedAt: string; // Last update date
-}
+} from "@/components/ui/table";
+import { Client } from "@/lib/types";
 
 export default function ClientTable() {
   const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editedClient, setEditedClient] = useState<Client | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [loading, setLoading] = useState(false)
+  const [isDelete, setIsDelete] = useState(false)
   const clientsPerPage = 15;
 
   const fetchClients = async () => {
-   
-      const response = await fetch("/api/clients");
-      const data = await response.json();
-      setClients(data);
-    
+    const response = await fetch("/api/clients");
+    const data = await response.json();
+    setClients(data);
   };
 
   useEffect(() => {
     fetchClients();
   }, []);
+
 
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
@@ -73,53 +57,51 @@ export default function ClientTable() {
     }
   };
 
-  const handleEdit = (client: Client) => {
-    setEditingId(client.id);
-    setEditedClient({ ...client });
-  };
-
-  const handleSave = async () => {
-    if (editedClient) {
-        if (editedClient.phoneNumber.length !== 8 || !/^[234]/.test(editedClient.phoneNumber)) {
-            toast.error("Le numéro de téléphone doit commencer par 2, 3 ou 4 et avoir exactement 8 chiffres.");
-            return;
-        }
-
-        setLoading(true); // Start loading
-
-        try {
-            const updatedClient = {
-                ...editedClient,
-                updatedAt: new Date().toISOString(), // Update the "updatedAt" field
-            };
-
-            const response = await fetch("/api/clients", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedClient),
-            });
-
-            if (response.ok) {
-                toast.success("Client modifié avec succès!");
-                await fetchClients(); // Refresh the client list
-                setEditingId(null); // Exit edit mode
-                setEditedClient(null); // Clear edited client data
-            } else {
-                toast.error("Failed to update client");
-            }
-        }
-        //  catch (error) {
-        //     toast.error("Failed to update client");
-        // }
-         finally {
-            setLoading(false); // Stop loading
-        }
-    }
-};
-  const handleDelete = async (id: number) => {
-    setLoading(true); // Start loading
+  const handleSave = async (clientId: string) => {
 
     try {
+      setLoading(true)// Start loading animation
+
+      if (!editedClient) return;
+
+      const updatedClient = {
+        _id: clientId,
+        ...editedClient,
+      };
+
+      const response = await fetch("/api/clients", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedClient),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Client mis à jour avec succès !");
+        await fetchClients();
+        setEditingId(null);
+        setEditedClient(null);
+      } else {
+        toast.error(data.error || "Échec de la mise à jour du client");
+      }
+    } catch (error) {
+      console.error("Error updating client:", error);
+      toast.error("Échec de la mise à jour du client");
+    } finally {
+      setLoading(false); // Stop loading animation
+    }
+  };
+  const handleEdit = (client: Client) => {
+    if (client._id) {
+      setEditingId(client._id);
+    }
+    setEditedClient(client);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      setIsDelete(true)
       const response = await fetch("/api/clients", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -127,38 +109,37 @@ export default function ClientTable() {
       });
 
       if (response.ok) {
-        toast.success("Client supprimé avec succès!");
-        fetchClients(); // Refresh the client list
+        toast.success("Client supprimé avec succès !");
+        await fetchClients();
       } else {
-        toast.error("Failed to delete client");
+        toast.error("Échec de la suppression du client");
       }
-    }
-    //  catch (error) {
-    //   toast.error("Failed to delete client");
-    // }
-     finally {
-      setLoading(false); // Stop loading
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      
+      toast.error("Échec de la suppression du client");
+      setIsDelete(false)
+    } finally {
+      setIsDelete(false)
+
     }
   };
 
-  const handleEditClientPage = (clientId: number) => {
-    router.push(`/client/${clientId}`);
+  const handleEditClientPage = (clientId: string) => {
+    router.push(`/client/${clientId}`); // Naviguer vers la page d'édition du client
   };
 
-  // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return format(date, "dd MMM yyyy, HH:mm"); // e.g., "12 Oct 2023, 14:30"
+    return format(date, "dd MMM yyyy, HH:mm");
   };
 
   return (
     <div className="mt-8">
       <h2 className="text-xl font-bold mb-4 text-primary">Liste des clients</h2>
-      {loading ? (
-        <div className="flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      ) : clients.length > 0 ? (
+
+
+      {clients.length > 0 ? (
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -201,13 +182,14 @@ export default function ClientTable() {
                 </TableHead>
                 <TableHead className="whitespace-nowrap border">
                   <div className="flex items-center">
-                    <Banknote className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Total</span>
+                    <TimerIcon className="h-4 w-4 mr-2" color="#C85E04" />
+                    <span className="text-sm sm:text-base font-semibold text-primary">Date</span>
                   </div>
                 </TableHead>
                 <TableHead className="whitespace-nowrap border">
                   <div className="flex items-center">
-                    <span className="text-sm sm:text-base font-semibold text-primary">Date</span>
+                    <Banknote className="h-4 w-4 mr-2" color="#C85E04" />
+                    <span className="text-sm sm:text-base font-semibold text-primary">Total</span>
                   </div>
                 </TableHead>
                 <TableHead className="whitespace-nowrap border">
@@ -217,9 +199,9 @@ export default function ClientTable() {
             </TableHeader>
             <TableBody>
               {currentClients.map((client) => (
-                <TableRow key={client.id} className="hover:bg-gray-100">
+                <TableRow key={client._id} className="hover:bg-gray-100">
                   <TableCell className="border">
-                    {editingId === client.id ? (
+                    {editingId === client._id ? ( // Use client._id
                       <Input
                         value={editedClient?.name || ""}
                         onChange={(e) => {
@@ -240,7 +222,7 @@ export default function ClientTable() {
                     {client.services.length > 0 ? (
                       client.services.map((service, index) => (
                         <div key={index}>
-                          <span>{service.name}: {service.price} MRO</span>
+                          <span>{service.name}: {service.price} MRU</span>
                         </div>
                       ))
                     ) : (
@@ -248,7 +230,7 @@ export default function ClientTable() {
                     )}
                   </TableCell>
                   <TableCell className="border">
-                    {editingId === client.id ? (
+                    {editingId === client._id ? ( // Use client._id
                       <Input
                         type="number"
                         value={editedClient?.upfrontPayment || 0}
@@ -264,7 +246,7 @@ export default function ClientTable() {
                     )}
                   </TableCell>
                   <TableCell className="border">
-                    {editingId === client.id ? (
+                    {editingId === client._id ? ( // Use client._id
                       <select
                         value={editedClient?.paymentMethod || ""}
                         onChange={(e) =>
@@ -286,7 +268,7 @@ export default function ClientTable() {
                     )}
                   </TableCell>
                   <TableCell className="border">
-                    {editingId === client.id ? (
+                    {editingId === client._id ? ( // Use client._id
                       <Input
                         value={editedClient?.phoneNumber || ""}
                         onChange={(e) => {
@@ -304,7 +286,7 @@ export default function ClientTable() {
                     )}
                   </TableCell>
                   <TableCell className="border">
-                    {editingId === client.id ? (
+                    {editingId === client._id ? ( // Use client._id
                       <Input
                         value={editedClient?.responsable || ""}
                         onChange={(e) => {
@@ -321,15 +303,20 @@ export default function ClientTable() {
                       client.responsable
                     )}
                   </TableCell>
+                  <TableCell className="border">
+
+                    {formatDate(client.updatedAt)}
+                  </TableCell>
                   <TableCell className="border">{client.totalPrice} MRU</TableCell>
                   <TableCell className="border">
-                    {formatDate(client.updatedAt)} {/* Show last updated date */}
-                  </TableCell>
-                  <TableCell className="border">
-                    {editingId === client.id ? (
+                    {editingId === client._id ? (
                       <div className="flex space-x-2">
-                        <Button onClick={handleSave} size="sm">
-                          <Check className="h-4 w-4" color="white" />
+                        <Button onClick={() => handleSave(client._id!)} size="sm" disabled={loading}>
+                          {loading ? (
+                            <BeatLoader color="#ffffff" size={5} />
+                          ) : (
+                            <Check className="h-4 w-4" color="white" />
+                          )}
                         </Button>
                         <Button
                           onClick={() => setEditingId(null)}
@@ -345,15 +332,15 @@ export default function ClientTable() {
                           <Edit className="h-4 w-4" color="white" />
                         </Button>
                         <Button
-                          onClick={() => handleDelete(client.id)}
+                          onClick={() => client._id && handleDelete(Number(client._id))}
                           variant="destructive"
                           size="sm"
                         >
-                          <Trash className="h-4 w-4" color="white" />
+                          {isDelete ? <BeatLoader color="#ffffff" size={4} /> : <Trash className="h-4 w-4" color="white" />}
                         </Button>
                         <Button
                           className="text-white"
-                          onClick={() => handleEditClientPage(client.id)}
+                          onClick={() => client._id && handleEditClientPage(client._id)}
                           size="sm"
                         >
                           Éditer

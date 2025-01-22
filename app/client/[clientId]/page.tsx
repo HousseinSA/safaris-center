@@ -1,58 +1,76 @@
 "use client";
 
-// import { useEffect, useState } from "react";
-// import { useRouter, useParams } from "next/navigation";
-// import { toast } from "sonner";
-// import AddClientForm from "../../components/AddClientForm"; // Adjust the import path
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import AddClientForm from "@/components/AddClientForm";
+import toast from "react-hot-toast";
 
-// interface Client {
-//   id: number;
-//   name: string;
-//   services: { name: string; price: number }[];
-//   paymentMethod: string;
-//   upfrontPayment: number;
-//   phoneNumber: string;
-//   responsable: string;
-//   totalPrice: number;
-// }
+import { Client, } from '@/lib/types'
+
 
 export default function EditClientPage() {
-  // const router = useRouter();
-  // const params = useParams();
-  // const clientId = Number(params.id); // Get the client ID from the URL
+  const router = useRouter();
+  const params = useParams();
+  const clientId = params.clientId as string;
 
-  // const [client, setClient] = useState<Client | null>(null);
+  const [client, setClient] = useState<Client | null>(null);
 
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
-  //     const foundClient = clients.find((c: Client) => c.id === clientId);
-  //     if (foundClient) {
-  //       setClient(foundClient);
-  //     } else {
-  //       toast.error("Client non trouvé.");
-  //       router.push("/"); // Redirect to the homepage if the client is not found
-  //     }
-  //   }
-  // }, [clientId, router]);
+  useEffect(() => {
+    const fetchClient = async () => {
+      try {
+        const response = await fetch(`/api/clients?id=${clientId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch client.");
+        }
+        const data = await response.json();
 
-  // const handleSave = (updatedClient: Client) => {
-  //   if (typeof window !== "undefined") {
-  //     const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
-  //     const updatedClients = clients.map((c: Client) =>
-  //       c.id === clientId ? updatedClient : c
-  //     );
-  //     window.localStorage.setItem("clients", JSON.stringify(updatedClients));
-  //     toast.success("Client modifié avec succès!");
-  //     // router.push("/"); 
-  //   }
-  // };
-  
+        if (!data) {
+          throw new Error("Client non trouvé.");
+        }
+
+        setClient(data);
+      } catch (error) {
+        console.error("Error fetching client:", error);
+        toast.error("Client non trouvé.");
+      } finally {
+      }
+    };
+
+    if (clientId) {
+      fetchClient();
+    }
+  }, [clientId, router]);
+
+  const handleSave = async (updatedClient: Client) => {
+    try {
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _id, ...clientData } = updatedClient;
+      const response = await fetch(`/api/clients`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ _id: clientId, ...clientData }), // Explicitly set _id and spread the rest
+      });
+
+      if (!response.ok) {
+        throw new Error("Échec de la mise à jour du client.");
+      }
+
+      toast.success("Client modifié avec succès!");
+      router.push("/");
+    } catch (error) {
+      console.error("Error saving client:", error);
+      toast.error("Échec de la mise à jour du client.");
+    } finally {
+    }
+  };
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Modifier le client</h1>
-      {/* <AddClientForm client={client} onSave={handleSave} /> */}
+      <h2 className="text-xl font-bold mb-4 text-primary">Modifier le client</h2>
+      {client && <AddClientForm client={client} onSave={handleSave} />}
     </div>
   );
 }

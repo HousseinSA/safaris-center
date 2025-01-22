@@ -5,6 +5,10 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
 import { Trash, Edit } from "lucide-react";
+import { BeatLoader } from "react-spinners";
+import { Client, Service } from '@/lib/types'
+import toast from "react-hot-toast";
+
 import {
   Table,
   TableBody,
@@ -13,26 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-interface Service {
-  name: string;
-  price: number;
-}
 
-interface Client {
-  id: number;
-  name: string;
-  services: Service[];
-  paymentMethod: string;
-  upfrontPayment: number;
-  phoneNumber: string;
-  responsable: string;
-  totalPrice: number;
-  createdAt: string; // Add createdAt field
-  updatedAt: string; // Add updatedAt field
-}
 
 const servicesList = [
   { name: "Qued Sefari", price: 0 },
@@ -59,7 +46,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   const [responsable, setResponsable] = useState<string>(client?.responsable || "");
   const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
   const [editingServiceAmount, setEditingServiceAmount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (client) {
@@ -130,7 +117,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
 
     // Create client object
     const newClient: Client = {
-      id: client?.id || Date.now(), // Use existing ID for edit mode, or generate a new one for add mode
       name,
       services,
       paymentMethod,
@@ -165,15 +151,16 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
           setUpfrontPayment(0);
           setPhoneNumber("");
           setResponsable("");
-          router.push("/"); // Redirect to home
+          router.push("/");
         } else {
           toast.error("Failed to save client");
         }
-      } 
-      // catch (error) {
-      //   toast.error("Failed to save client");
-      // }
-       finally {
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      catch (error) {
+        toast.error("Failed to save client");
+      }
+      finally {
         setLoading(false); // Stop loading
       }
     }
@@ -184,11 +171,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {loading && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      )}
       <div>
         <Label htmlFor="name">Nom du client</Label>
         <Input
@@ -368,7 +350,8 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
       </div>
 
       <Button type="submit" className="text-white" disabled={loading}>
-        {client ? "Modifier" : "Enregistrer"}
+        {loading ? <BeatLoader color="#ffffff" size={5} /> : client ? "Modifier" : "Enregistrer"}
+
       </Button>
     </form>
   );
