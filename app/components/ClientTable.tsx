@@ -25,7 +25,7 @@ export default function ClientTable() {
   const [editedClient, setEditedClient] = useState<Client | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [loading, setLoading] = useState(false)
-  const [isDelete, setIsDelete] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const clientsPerPage = 15;
 
   const fetchClients = async () => {
@@ -89,19 +89,19 @@ export default function ClientTable() {
       console.error("Error updating client:", error);
       toast.error("Échec de la mise à jour du client");
     } finally {
-      setLoading(false); // Stop loading animation
+      setLoading(false);
     }
   };
   const handleEdit = (client: Client) => {
     if (client._id) {
-      setEditingId(client._id);
+      setEditingId(client._id.toString());
     }
     setEditedClient(client);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
-      setIsDelete(true)
+      setDeletingId(id); // Set the ID of the client being deleted
       const response = await fetch("/api/clients", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -114,14 +114,12 @@ export default function ClientTable() {
       } else {
         toast.error("Échec de la suppression du client");
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      
-      toast.error("Échec de la suppression du client");
-      setIsDelete(false)
-    } finally {
-      setIsDelete(false)
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast.error("Échec de la suppression du client");
+    } finally {
+      setDeletingId(null); // Clear the ID after deletion is complete
     }
   };
 
@@ -199,7 +197,7 @@ export default function ClientTable() {
             </TableHeader>
             <TableBody>
               {currentClients.map((client) => (
-                <TableRow key={client._id} className="hover:bg-gray-100">
+                <TableRow key={client._id?.toString()} className="hover:bg-gray-100">
                   <TableCell className="border">
                     {editingId === client._id ? ( // Use client._id
                       <Input
@@ -311,7 +309,7 @@ export default function ClientTable() {
                   <TableCell className="border">
                     {editingId === client._id ? (
                       <div className="flex space-x-2">
-                        <Button onClick={() => handleSave(client._id!)} size="sm" disabled={loading}>
+                        <Button onClick={() => handleSave(client._id!.toString())} size="sm" disabled={loading}>
                           {loading ? (
                             <BeatLoader color="#ffffff" size={5} />
                           ) : (
@@ -332,15 +330,19 @@ export default function ClientTable() {
                           <Edit className="h-4 w-4" color="white" />
                         </Button>
                         <Button
-                          onClick={() => client._id && handleDelete(Number(client._id))}
+                          onClick={() => client._id && handleDelete(client._id.toString())}
                           variant="destructive"
                           size="sm"
                         >
-                          {isDelete ? <BeatLoader color="#ffffff" size={4} /> : <Trash className="h-4 w-4" color="white" />}
+                          {client._id && deletingId === client._id.toString() ? (
+                            <BeatLoader color="#ffffff" size={4} />
+                          ) : (
+                            <Trash className="h-4 w-4" color="white" />
+                          )}
                         </Button>
                         <Button
                           className="text-white"
-                          onClick={() => client._id && handleEditClientPage(client._id)}
+                          onClick={() => client._id && handleEditClientPage(client._id.toString())}
                           size="sm"
                         >
                           Éditer

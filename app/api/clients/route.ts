@@ -1,32 +1,22 @@
-import { MongoClient, ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
-
-const uri = process.env.MONGODB_LINK!;
-const client = new MongoClient(uri);
+import db from "@/lib/mongodb";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("id");
+
     try {
-        await client.connect();
-        const database = client.db('your-database-name');
-        const collection = database.collection("clients");
-
         if (clientId) {
-            // Fetch a specific client by _id
-            const objectId = new ObjectId(clientId);
-            const clientData = await collection.findOne({ _id: objectId });
-
-            if (!clientData) {
+            const client = await db.getClientById(clientId);
+            if (!client) {
                 return NextResponse.json(
                     { error: "Client not found" },
                     { status: 404 }
                 );
             }
-
-            return NextResponse.json(clientData);
+            return NextResponse.json(client);
         } else {
-            const clients = await collection.find().toArray();
+            const clients = await db.getAllClients();
             return NextResponse.json(clients);
         }
     } catch (error) {
@@ -35,53 +25,35 @@ export async function GET(request: Request) {
             { error: "Failed to fetch client(s)" },
             { status: 500 }
         );
-    } finally {
-        await client.close();
     }
 }
-
 
 export async function POST(request: Request) {
-    const clientData = await request.json();
-
     try {
-        await client.connect();
-        const database = client.db("your-database-name");
-        const collection = database.collection("clients");
-
-        const result = await collection.insertOne(clientData);
+        const clientData = await request.json();
+        const result = await db.createClient(clientData);
         return NextResponse.json(result, { status: 201 });
-    }
-    // catch (error) {
-    //     return NextResponse.json(
-    //         { error: "Failed to create client" },
-    //         { status: 500 }
-    //     );
-    // } 
-    finally {
-        await client.close();
+    } catch (error) {
+        console.error("Error creating client:", error);
+        return NextResponse.json(
+            { error: "Failed to create client" },
+            { status: 500 }
+        );
     }
 }
 
-
 export async function PUT(request: Request) {
-    const { _id, ...clientData } = await request.json();
-
     try {
+        const { _id, ...clientData } = await request.json();
 
-        await client.connect();
-        const database = client.db("your-database-name");
-        const collection = database.collection("clients");
+        if (!_id) {
+            return NextResponse.json(
+                { error: "Client ID is required" },
+                { status: 400 }
+            );
+        }
 
-        // Convert _id to ObjectId
-        const objectId = new ObjectId(_id);
-
-        // Log the data being updated
-
-        const result = await collection.updateOne(
-            { _id: objectId },
-            { $set: clientData }
-        );
+        const result = await db.updateClient(_id, clientData);
 
         if (result.matchedCount === 0) {
             return NextResponse.json(
@@ -97,28 +69,27 @@ export async function PUT(request: Request) {
             { error: "Failed to update client" },
             { status: 500 }
         );
-    } finally {
-        await client.close();
     }
 }
+
 export async function DELETE(request: Request) {
-    const { id } = await request.json();
-
     try {
-        await client.connect();
-        const database = client.db("your-database-name");
-        const collection = database.collection("clients");
+        const { id } = await request.json();
 
-        const result = await collection.deleteOne({ id: id });
+        if (!id) {
+            return NextResponse.json(
+                { error: "Client ID is required" },
+                { status: 400 }
+            );
+        }
+
+        const result = await db.deleteClient(id);
         return NextResponse.json(result);
-    }
-    // catch (error) {
-    //     return NextResponse.json(
-    //         { error: "Failed to delete client" },
-    //         { status: 500 }
-    //     );
-    // }
-    finally {
-        await client.close();
+    } catch (error) {
+        console.error("Error deleting client:", error);
+        return NextResponse.json(
+            { error: "Failed to delete client" },
+            { status: 500 }
+        );
     }
 }

@@ -1,10 +1,12 @@
+import { ObjectId } from "mongodb";
+
 export interface Service {
     name: string;
     price: number;
 }
 
 export interface Client {
-    _id?: string
+    _id?: ObjectId | string; // Allow both ObjectId and string
     name: string;
     services: Service[];
     paymentMethod: string;
