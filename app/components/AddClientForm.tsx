@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
-import { Trash } from "lucide-react";
+import { Trash, Edit } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,7 +12,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table"; // Import shadcn table components
+} from "../components/ui/table";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface Service {
   name: string;
@@ -28,6 +30,8 @@ interface Client {
   phoneNumber: string;
   responsable: string;
   totalPrice: number;
+  createdAt: string; // Add createdAt field
+  updatedAt: string; // Add updatedAt field
 }
 
 const servicesList = [
@@ -38,19 +42,40 @@ const servicesList = [
 
 const paymentMethods = ["Cash", "Bankily", "Masrivi", "Sedad", "Click"];
 
-export default function AddClientForm() {
-  const [name, setName] = useState<string>("");
+interface AddClientFormProps {
+  client?: Client; // Optional client prop for edit mode
+  onSave?: (client: Client) => void; // Optional callback for saving
+}
+
+export default function AddClientForm({ client, onSave }: AddClientFormProps) {
+  const router = useRouter();
+  const [name, setName] = useState<string>(client?.name || "");
   const [selectedService, setSelectedService] = useState<Service>(servicesList[0]);
   const [serviceAmount, setServiceAmount] = useState<number>(0);
-  const [services, setServices] = useState<Service[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<string>(paymentMethods[0]);
-  const [upfrontPayment, setUpfrontPayment] = useState<number>(0);
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [responsable, setResponsable] = useState<string>("");
+  const [services, setServices] = useState<Service[]>(client?.services || []);
+  const [paymentMethod, setPaymentMethod] = useState<string>(client?.paymentMethod || paymentMethods[0]);
+  const [upfrontPayment, setUpfrontPayment] = useState<number>(client?.upfrontPayment || 0);
+  const [phoneNumber, setPhoneNumber] = useState<string>(client?.phoneNumber || "");
+  const [responsable, setResponsable] = useState<string>(client?.responsable || "");
+  const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
+  const [editingServiceAmount, setEditingServiceAmount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
+
+  useEffect(() => {
+    if (client) {
+      // Pre-fill the form if client data is provided
+      setName(client.name);
+      setServices(client.services);
+      setPaymentMethod(client.paymentMethod);
+      setUpfrontPayment(client.upfrontPayment);
+      setPhoneNumber(client.phoneNumber);
+      setResponsable(client.responsable);
+    }
+  }, [client]);
 
   const handleAddService = () => {
     if (serviceAmount <= 0) {
-      alert("Veuillez entrer un montant valide pour le service.");
+      toast.error("Veuillez entrer un montant valide pour le service.");
       return;
     }
 
@@ -68,12 +93,35 @@ export default function AddClientForm() {
     setServices(updatedServices);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleEditService = (index: number) => {
+    setEditingServiceIndex(index);
+    setEditingServiceAmount(services[index].price);
+  };
+
+  const handleSaveEdit = (index: number) => {
+    if (editingServiceAmount <= 0) {
+      toast.error("Veuillez entrer un montant valide pour le service.");
+      return;
+    }
+
+    const updatedServices = [...services];
+    updatedServices[index].price = editingServiceAmount;
+    setServices(updatedServices);
+    setEditingServiceIndex(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate input data
     if (!name || !paymentMethod || upfrontPayment < 0 || !phoneNumber || !responsable || services.length === 0) {
-      alert("Veuillez remplir tous les champs correctement.");
+      toast.error("Veuillez remplir tous les champs correctement.");
+      return;
+    }
+
+    // Validate phone number
+    if (!/^[234]\d{7}$/.test(phoneNumber)) {
+      toast.error("Le numéro de téléphone doit commencer par 2, 3 ou 4 et avoir exactement 8 chiffres.");
       return;
     }
 
@@ -81,8 +129,8 @@ export default function AddClientForm() {
     const totalPrice = services.reduce((sum, service) => sum + service.price, 0);
 
     // Create client object
-    const client: Client = {
-      id: Date.now(),
+    const newClient: Client = {
+      id: client?.id || Date.now(), // Use existing ID for edit mode, or generate a new one for add mode
       name,
       services,
       paymentMethod,
@@ -90,24 +138,45 @@ export default function AddClientForm() {
       phoneNumber,
       responsable,
       totalPrice,
+      createdAt: client?.createdAt || new Date().toISOString(), // Set createdAt
+      updatedAt: new Date().toISOString(), // Set updatedAt
     };
 
-    // Save client to localStorage
-    if (typeof window !== "undefined") {
-      const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
-      clients.push(client);
-      window.localStorage.setItem("clients", JSON.stringify(clients));
+    setLoading(true); // Start loading
+
+    if (onSave) {
+      // If onSave callback is provided, use it (for edit mode)
+      onSave(newClient);
+      router.push("/"); // Redirect to home
+    } else {
+      // Otherwise, save to MongoDB (for add mode)
+      try {
+        const response = await fetch("/api/clients", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newClient),
+        });
+
+        if (response.ok) {
+          toast.success("Client enregistré avec succès!");
+          setName("");
+          setServices([]);
+          setPaymentMethod(paymentMethods[0]);
+          setUpfrontPayment(0);
+          setPhoneNumber("");
+          setResponsable("");
+          router.push("/"); // Redirect to home
+        } else {
+          toast.error("Failed to save client");
+        }
+      } 
+      // catch (error) {
+      //   toast.error("Failed to save client");
+      // }
+       finally {
+        setLoading(false); // Stop loading
+      }
     }
-
-    // Reset form
-    setName("");
-    setServices([]);
-    setPaymentMethod(paymentMethods[0]);
-    setUpfrontPayment(0);
-    setPhoneNumber("");
-    setResponsable("");
-
-    alert("Client enregistré avec succès!");
   };
 
   // Calculate total price of services
@@ -115,6 +184,11 @@ export default function AddClientForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
       <div>
         <Label htmlFor="name">Nom du client</Label>
         <Input
@@ -166,7 +240,7 @@ export default function AddClientForm() {
         </div>
       </div>
 
-      <Button type="button" onClick={handleAddService}>
+      <Button type="button" onClick={handleAddService} className="text-white">
         Ajouter le service
       </Button>
 
@@ -185,12 +259,39 @@ export default function AddClientForm() {
               {services.map((service, index) => (
                 <TableRow key={index}>
                   <TableCell>{service.name}</TableCell>
-                  <TableCell>{service.price} MRO</TableCell>
                   <TableCell>
+                    {editingServiceIndex === index ? (
+                      <Input
+                        type="number"
+                        value={editingServiceAmount}
+                        onChange={(e) => setEditingServiceAmount(parseFloat(e.target.value))}
+                      />
+                    ) : (
+                      service.price
+                    )} MRU
+                  </TableCell>
+                  <TableCell>
+                    {editingServiceIndex === index ? (
+                      <Button
+                        type="button"
+                        onClick={() => handleSaveEdit(index)}
+                        className="text-white"
+                      >
+                        Sauvegarder
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={() => handleEditService(index)}
+                        className="text-white"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
-                      variant="destructive"
-                      size="sm"
+                      type="button"
                       onClick={() => handleRemoveService(index)}
+                      className="text-white ml-2 bg-red-500"
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
@@ -200,7 +301,7 @@ export default function AddClientForm() {
             </TableBody>
           </Table>
           <div className="mt-2 text-right font-bold">
-            Total: {totalPrice} MRO
+            Total: {totalPrice} MRU
           </div>
         </div>
       )}
@@ -241,10 +342,11 @@ export default function AddClientForm() {
           value={phoneNumber}
           onChange={(e) => {
             const value = e.target.value;
-            if (/^\d*$/.test(value)) {
+            if (value === "" || /^[234]\d{0,7}$/.test(value)) {
               setPhoneNumber(value);
             }
           }}
+          maxLength={8}
           required
         />
       </div>
@@ -255,12 +357,19 @@ export default function AddClientForm() {
           id="responsable"
           type="text"
           value={responsable}
-          onChange={(e) => setResponsable(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^[A-Za-z\s]*$/.test(value)) {
+              setResponsable(value);
+            }
+          }}
           required
         />
       </div>
 
-      <Button type="submit">Enregistrer</Button>
+      <Button type="submit" className="text-white" disabled={loading}>
+        {client ? "Modifier" : "Enregistrer"}
+      </Button>
     </form>
   );
 }
