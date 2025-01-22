@@ -85,9 +85,9 @@ export default function AddClientForm() {
     };
 
     // Save client to localStorage
-    const clients = JSON.parse(localStorage.getItem("clients") || "[]");
+    const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
     clients.push(client);
-    localStorage.setItem("clients", JSON.stringify(clients));
+    window.localStorage.setItem("clients", JSON.stringify(clients));
 
     // Reset form
     setName("");

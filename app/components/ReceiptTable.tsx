@@ -1,4 +1,4 @@
-// app/components/CheckoutTable.tsx
+
 "use client";
 
 import { Button } from "./ui/button";
@@ -11,7 +11,7 @@ interface Client {
 }
 
 export default function ReceiptTable() {
-  const clients = JSON.parse(localStorage.getItem("clients") || "[]");
+  const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
 
   const handleDownload = () => {
     // Implement download logic

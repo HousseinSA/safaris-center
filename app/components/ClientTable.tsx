@@ -25,8 +25,9 @@ interface Client {
 
 export default function ClientTable() {
   const router = useRouter();
+ 
   const [clients, setClients] = useState<Client[]>(
-    JSON.parse(localStorage.getItem("clients") || "[]")
+    JSON.parse(window.localStorage.getItem("clients") || "[]")
   );
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedClient, setEditedClient] = useState<Client | null>(null);
@@ -42,7 +43,7 @@ export default function ClientTable() {
         client.id === editedClient.id ? editedClient : client
       );
       setClients(updatedClients);
-      localStorage.setItem("clients", JSON.stringify(updatedClients));
+      window.localStorage.setItem("clients", JSON.stringify(updatedClients));
       setEditingId(null);
       setEditedClient(null);
       toast.success("Client modifié avec succès!");
@@ -52,8 +53,8 @@ export default function ClientTable() {
   const handleDelete = (id: number) => {
     const updatedClients = clients.filter((client) => client.id !== id);
     setClients(updatedClients);
-    localStorage.setItem("clients", JSON.stringify(updatedClients));
-    toast.success("Client supprimé avec succès!");
+      window.localStorage.setItem("clients", JSON.stringify(updatedClients));
+     toast.success("Client supprimé avec succès!");
   };
 
   const handleEditClientPage = (clientId: number) => {
