@@ -240,7 +240,7 @@ export default function ClientTable() {
                         }
                       />
                     ) : (
-                      client.upfrontPayment
+                      client.upfrontPayment + ' MRU'
                     )}
                   </TableCell>
                   <TableCell className="border">

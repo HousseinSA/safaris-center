@@ -19,8 +19,6 @@ import {
 } from "../components/ui/table";
 import { useRouter } from "next/navigation";
 
-
-
 const servicesList = [
   { name: "Qued Sefari", price: 0 },
   { name: "Camping Nkc Scape", price: 0 },
@@ -249,7 +247,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
                         onChange={(e) => setEditingServiceAmount(parseFloat(e.target.value))}
                       />
                     ) : (
-                      service.price
+                      service.price.toLocaleString() // Format with commas
                     )} MRU
                   </TableCell>
                   <TableCell>
@@ -283,7 +281,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
             </TableBody>
           </Table>
           <div className="mt-2 text-right font-bold">
-            Total: {totalPrice} MRU
+            Total: {totalPrice.toLocaleString()} MRU
           </div>
         </div>
       )}
@@ -351,7 +349,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
 
       <Button type="submit" className="text-white" disabled={loading}>
         {loading ? <BeatLoader color="#ffffff" size={5} /> : client ? "Modifier" : "Enregistrer"}
-
       </Button>
     </form>
   );
