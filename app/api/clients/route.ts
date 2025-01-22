@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
         const result = await collection.insertOne(clientData);
         return NextResponse.json(result, { status: 201 });
-    } 
+    }
     // catch (error) {
     //     return NextResponse.json(
     //         { error: "Failed to create client" },
@@ -46,6 +46,8 @@ export async function POST(request: Request) {
         await client.close();
     }
 }
+
+
 
 export async function PUT(request: Request) {
     const { id, ...clientData } = await request.json();
@@ -98,14 +100,14 @@ export async function DELETE(request: Request) {
 
         const result = await collection.deleteOne({ id: id });
         return NextResponse.json(result);
-    } 
+    }
     // catch (error) {
     //     return NextResponse.json(
     //         { error: "Failed to delete client" },
     //         { status: 500 }
     //     );
     // }
-     finally {
+    finally {
         await client.close();
     }
 }

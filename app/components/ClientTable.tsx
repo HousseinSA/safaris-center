@@ -107,8 +107,8 @@ export default function ClientTable() {
             } else {
                 toast.error("Failed to update client");
             }
-        } 
-        // catch (error) {
+        }
+        //  catch (error) {
         //     toast.error("Failed to update client");
         // }
          finally {
