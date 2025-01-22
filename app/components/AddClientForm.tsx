@@ -4,7 +4,15 @@ import { useState } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
-import { Trash } from "lucide-react"; // Import the Trash icon from lucide-react
+import { Trash } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table"; // Import shadcn table components
 
 interface Service {
   name: string;
@@ -85,9 +93,11 @@ export default function AddClientForm() {
     };
 
     // Save client to localStorage
-    const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
-    clients.push(client);
-    window.localStorage.setItem("clients", JSON.stringify(clients));
+    if (typeof window !== "undefined") {
+      const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
+      clients.push(client);
+      window.localStorage.setItem("clients", JSON.stringify(clients));
+    }
 
     // Reset form
     setName("");
@@ -160,38 +170,40 @@ export default function AddClientForm() {
         Ajouter le service
       </Button>
 
-      <div>
-        <Label>Services ajoutés</Label>
-        <table className="w-full border-collapse border">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2 border">Service</th>
-              <th className="p-2 border">Montant</th>
-              <th className="p-2 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {services.map((service, index) => (
-              <tr key={index} className="hover:bg-gray-100">
-                <td className="p-2 border">{service.name}</td>
-                <td className="p-2 border">{service.price} MRO</td>
-                <td className="p-2 border">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleRemoveService(index)}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="mt-2 text-right font-bold">
-          Total: {totalPrice} MRO
+      {services.length > 0 && (
+        <div>
+          <Label>Services ajoutés</Label>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Service</TableHead>
+                <TableHead>Montant</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {services.map((service, index) => (
+                <TableRow key={index}>
+                  <TableCell>{service.name}</TableCell>
+                  <TableCell>{service.price} MRO</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemoveService(index)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="mt-2 text-right font-bold">
+            Total: {totalPrice} MRO
+          </div>
         </div>
-      </div>
+      )}
 
       <div>
         <Label htmlFor="paymentMethod">Méthode de paiement</Label>

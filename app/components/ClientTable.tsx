@@ -1,11 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import { Edit, Trash, Check, X, List, DollarSign, CreditCard, User } from "lucide-react";
+import {
+  Edit,
+  Trash,
+  Check,
+  X,
+  Phone,
+  Briefcase,
+  Banknote,
+  CreditCard,
+  User,
+} from "lucide-react"; // Updated icons
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table"; // Import shadcn table components
 
 interface Service {
   name: string;
@@ -25,12 +43,17 @@ interface Client {
 
 export default function ClientTable() {
   const router = useRouter();
- 
-  const [clients, setClients] = useState<Client[]>(
-    JSON.parse(window.localStorage.getItem("clients") || "[]")
-  );
+
+  const [clients, setClients] = useState<Client[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedClient, setEditedClient] = useState<Client | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedClients = JSON.parse(window.localStorage.getItem("clients") || "[]");
+      setClients(storedClients);
+    }
+  }, []);
 
   const handleEdit = (client: Client) => {
     setEditingId(client.id);
@@ -38,23 +61,23 @@ export default function ClientTable() {
   };
 
   const handleSave = () => {
-    if (editedClient) {
+    if (editedClient && typeof window !== "undefined") {
       const updatedClients = clients.map((client) =>
         client.id === editedClient.id ? editedClient : client
       );
       setClients(updatedClients);
       window.localStorage.setItem("clients", JSON.stringify(updatedClients));
-      setEditingId(null);
-      setEditedClient(null);
       toast.success("Client modifié avec succès!");
     }
   };
 
   const handleDelete = (id: number) => {
-    const updatedClients = clients.filter((client) => client.id !== id);
-    setClients(updatedClients);
+    if (typeof window !== "undefined") {
+      const updatedClients = clients.filter((client) => client.id !== id);
+      setClients(updatedClients);
       window.localStorage.setItem("clients", JSON.stringify(updatedClients));
-     toast.success("Client supprimé avec succès!");
+      toast.success("Client supprimé avec succès!");
+    }
   };
 
   const handleEditClientPage = (clientId: number) => {
@@ -66,43 +89,60 @@ export default function ClientTable() {
       <h2 className="text-xl font-bold mb-4">Liste des clients</h2>
       {clients.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse border">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2 border text-left">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="whitespace-nowrap border">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-2" />
-                    Nom du client
+                    <span className="text-sm sm:text-base">Nom du client</span>
                   </div>
-                </th>
-                <th className="p-2 border text-left">
+                </TableHead>
+                <TableHead className="whitespace-nowrap border">
                   <div className="flex items-center">
-                    <List className="h-4 w-4 mr-2" />
-                    Services
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    <span className="text-sm sm:text-base">Services</span>
                   </div>
-                </th>
-                <th className="p-2 border text-left">
+                </TableHead>
+                <TableHead className="whitespace-nowrap border">
                   <div className="flex items-center">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    Paiement initial
+                    <Banknote className="h-4 w-4 mr-2" />
+                    <span className="text-sm sm:text-base">Paiement initial</span>
                   </div>
-                </th>
-                <th className="p-2 border text-left">
+                </TableHead>
+                <TableHead className="whitespace-nowrap border">
                   <div className="flex items-center">
                     <CreditCard className="h-4 w-4 mr-2" />
-                    Méthode de paiement
+                    <span className="text-sm sm:text-base">Méthode de paiement</span>
                   </div>
-                </th>
-                <th className="p-2 border text-left">Numéro de téléphone</th>
-                <th className="p-2 border text-left">Responsable</th>
-                <th className="p-2 border text-left">Total</th>
-                <th className="p-2 border text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+                </TableHead>
+                <TableHead className="whitespace-nowrap border">
+                <div className="flex items-center">
+    <Phone className="h-4 w-4 mr-2" /> 
+    <span className="text-sm sm:text-base">Numéro de téléphone</span> 
+  </div>
+                </TableHead>
+                <TableHead className="whitespace-nowrap border">
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 mr-2" />
+                    <span className="text-sm sm:text-base">Responsable</span>
+                  </div>
+                </TableHead>
+                <TableHead className="whitespace-nowrap border">
+                  <div className="flex items-center">
+                    <Banknote className="h-4 w-4 mr-2" />
+                    <span className="text-sm sm:text-base">Total</span>
+                  </div>
+                </TableHead>
+                <TableHead className="whitespace-nowrap border">
+                  <span className="text-sm sm:text-base">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {clients.map((client) => (
-                <tr key={client.id} className="hover:bg-gray-100">
-                  <td className="p-2 border">
+                <TableRow key={client.id} className="hover:bg-gray-100">
+                  <TableCell className='border'>
                     {editingId === client.id ? (
                       <Input
                         value={editedClient?.name || ""}
@@ -116,8 +156,8 @@ export default function ClientTable() {
                     ) : (
                       client.name
                     )}
-                  </td>
-                  <td className="p-2 border">
+                  </TableCell>
+                  <TableCell className='border'>
                     {client.services.length > 0 ? (
                       client.services.map((service, index) => (
                         <div key={index}>
@@ -127,8 +167,8 @@ export default function ClientTable() {
                     ) : (
                       <span className="text-gray-500">Aucun service</span>
                     )}
-                  </td>
-                  <td className="p-2 border">
+                  </TableCell>
+                  <TableCell className='border'>
                     {editingId === client.id ? (
                       <Input
                         type="number"
@@ -143,8 +183,8 @@ export default function ClientTable() {
                     ) : (
                       client.upfrontPayment
                     )}
-                  </td>
-                  <td className="p-2 border">
+                  </TableCell>
+                  <TableCell className='border'>
                     {editingId === client.id ? (
                       <select
                         value={editedClient?.paymentMethod || ""}
@@ -165,8 +205,8 @@ export default function ClientTable() {
                     ) : (
                       client.paymentMethod
                     )}
-                  </td>
-                  <td className="p-2 border">
+                  </TableCell>
+                  <TableCell className='border'>
                     {editingId === client.id ? (
                       <Input
                         value={editedClient?.phoneNumber || ""}
@@ -180,8 +220,8 @@ export default function ClientTable() {
                     ) : (
                       client.phoneNumber
                     )}
-                  </td>
-                  <td className="p-2 border">
+                  </TableCell>
+                  <TableCell className='border'>
                     {editingId === client.id ? (
                       <Input
                         value={editedClient?.responsable || ""}
@@ -195,9 +235,9 @@ export default function ClientTable() {
                     ) : (
                       client.responsable
                     )}
-                  </td>
-                  <td className="p-2 border">{client.totalPrice} MRO</td>
-                  <td className="p-2 border">
+                  </TableCell>
+                  <TableCell className='border'>{client.totalPrice} MRU</TableCell>
+                  <TableCell className='border'>
                     {editingId === client.id ? (
                       <div className="flex space-x-2">
                         <Button onClick={handleSave} size="sm">
@@ -227,15 +267,15 @@ export default function ClientTable() {
                           onClick={() => handleEditClientPage(client.id)}
                           size="sm"
                         >
-                          Éditer la page
+                          Éditer
                         </Button>
                       </div>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       ) : (
         <p className="text-gray-500">Aucun client trouvé.</p>

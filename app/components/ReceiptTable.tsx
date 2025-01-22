@@ -11,10 +11,9 @@ interface Client {
 }
 
 export default function ReceiptTable() {
-  const clients = JSON.parse(window.localStorage.getItem("clients") || "[]");
+  const clients = typeof window !== undefined &&  JSON.parse(window.localStorage.getItem("clients") || "[]");
 
   const handleDownload = () => {
-    // Implement download logic
     alert("Downloading...");
   };
 
