@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash, Check, X, Phone, Briefcase, Banknote, CreditCard, User, ChevronLeft, ChevronRight, TimerIcon } from "lucide-react";
+import { Edit, Trash, Check, X, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { BeatLoader } from "react-spinners";
+import { Client } from "@/lib/types";
 import {
   Table,
   TableBody,
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Client } from "@/lib/types";
+import Invoice from "./Invoice";
 
 export default function ClientTable() {
   const router = useRouter();
@@ -24,8 +25,10 @@ export default function ClientTable() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedClient, setEditedClient] = useState<Client | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [showInvoice, setShowInvoice] = useState(false);
   const clientsPerPage = 15;
 
   const fetchClients = async () => {
@@ -37,7 +40,6 @@ export default function ClientTable() {
   useEffect(() => {
     fetchClients();
   }, []);
-
 
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
@@ -58,9 +60,8 @@ export default function ClientTable() {
   };
 
   const handleSave = async (clientId: string) => {
-
     try {
-      setLoading(true)// Start loading animation
+      setLoading(true);
 
       if (!editedClient) return;
 
@@ -92,6 +93,7 @@ export default function ClientTable() {
       setLoading(false);
     }
   };
+
   const handleEdit = (client: Client) => {
     if (client._id) {
       setEditingId(client._id.toString());
@@ -101,7 +103,7 @@ export default function ClientTable() {
 
   const handleDelete = async (id: string) => {
     try {
-      setDeletingId(id); // Set the ID of the client being deleted
+      setDeletingId(id);
       const response = await fetch("/api/clients", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -114,17 +116,16 @@ export default function ClientTable() {
       } else {
         toast.error("Échec de la suppression du client");
       }
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Échec de la suppression du client");
     } finally {
-      setDeletingId(null); // Clear the ID after deletion is complete
+      setDeletingId(null);
     }
   };
 
   const handleEditClientPage = (clientId: string) => {
-    router.push(`/client/${clientId}`); // Naviguer vers la page d'édition du client
+    router.push(`/client/${clientId}`);
   };
 
   const formatDate = (dateString: string) => {
@@ -132,74 +133,52 @@ export default function ClientTable() {
     return format(date, "dd MMM yyyy, HH:mm");
   };
 
+  // Fetch client data and show invoice modal
+  const handleCheckout = async (clientId: string) => {
+    try {
+      const response = await fetch(`/api/clients?id=${clientId}`);
+      const data = await response.json();
+      if (response.ok) {
+        setSelectedClient(data); // Set the selected client data
+        setShowInvoice(true); // Show the invoice modal
+      } else {
+        toast.error("Failed to fetch client data");
+      }
+    } catch (error) {
+      console.error("Error fetching client data:", error);
+      toast.error("Failed to fetch client data");
+    }
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-xl font-bold mb-4 text-primary">Liste des clients</h2>
 
-
       {clients.length > 0 ? (
-        <div className="overflow-x-auto">
+        <div className="w-full overflow-x-auto">
+          {/* Table Header */}
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <User className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Nom du client</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <Briefcase className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Services</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <Banknote className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Paiement initial</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <CreditCard className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Méthode de paiement</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <Phone className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Numéro de téléphone</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <User className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Responsable</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <TimerIcon className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Date</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <div className="flex items-center">
-                    <Banknote className="h-4 w-4 mr-2" color="#C85E04" />
-                    <span className="text-sm sm:text-base font-semibold text-primary">Total</span>
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap border">
-                  <span className="text-sm sm:text-base font-semibold text-primary">Actions</span>
-                </TableHead>
+            <TableHeader className="bg-primary ">
+              <TableRow className="text-white">
+                <TableHead className="text-white">Nom du client</TableHead>
+                <TableHead className="text-white">Services</TableHead>
+                <TableHead className="text-white">Paiement initial</TableHead>
+                <TableHead className="text-white">Paiement restant</TableHead>
+                <TableHead className="text-white">Méthode de paiement</TableHead>
+                <TableHead className="text-white">Numéro de téléphone</TableHead>
+                <TableHead className="text-white">Responsable</TableHead>
+                <TableHead className="text-white">Date de réservation</TableHead>
+                <TableHead className="text-white">Date de fin</TableHead>
+                <TableHead className="text-white">Total</TableHead>
+                <TableHead className="text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentClients.map((client) => (
-                <TableRow key={client._id?.toString()} className="hover:bg-gray-100">
-                  <TableCell className="border">
-                    {editingId === client._id ? ( // Use client._id
+                <TableRow key={client._id?.toString()}>
+                  {/* Client Name */}
+                  <TableCell>
+                    {editingId === client._id ? (
                       <Input
                         value={editedClient?.name || ""}
                         onChange={(e) => {
@@ -216,35 +195,37 @@ export default function ClientTable() {
                       client.name
                     )}
                   </TableCell>
-                  <TableCell className="border">
-                    {client.services.length > 0 ? (
-                      client.services.map((service, index) => (
-                        <div key={index}>
-                          <span>{service.name}: {service.price} MRU</span>
-                        </div>
-                      ))
-                    ) : (
-                      <span className="text-gray-500">Aucun service</span>
-                    )}
+
+                  {/* Services */}
+                  <TableCell>
+                    {client.services.map((service, index) => (
+                      <div key={index}>
+                        {service.name}: {(service.price || 0).toLocaleString()} MRU
+                      </div>
+                    ))}
                   </TableCell>
-                  <TableCell className="border">
-                    {editingId === client._id ? ( // Use client._id
-                      <Input
-                        type="number"
-                        value={editedClient?.upfrontPayment || 0}
-                        onChange={(e) =>
-                          setEditedClient({
-                            ...editedClient!,
-                            upfrontPayment: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    ) : (
-                      client.upfrontPayment + ' MRU'
-                    )}
+
+                  {/* Upfront Payment */}
+                  <TableCell>
+                    {client.services.map((service, index) => (
+                      <div key={index}>
+                        {(service.upfrontPayment || 0).toLocaleString()} MRU
+                      </div>
+                    ))}
                   </TableCell>
-                  <TableCell className="border">
-                    {editingId === client._id ? ( // Use client._id
+
+                  {/* Remaining Payment */}
+                  <TableCell>
+                    {client.services.map((service, index) => (
+                      <div key={index}>
+                        {(service.remainingPayment || 0).toLocaleString()} MRU
+                      </div>
+                    ))}
+                  </TableCell>
+
+                  {/* Payment Method */}
+                  <TableCell>
+                    {editingId === client._id ? (
                       <select
                         value={editedClient?.paymentMethod || ""}
                         onChange={(e) =>
@@ -265,8 +246,10 @@ export default function ClientTable() {
                       client.paymentMethod
                     )}
                   </TableCell>
-                  <TableCell className="border">
-                    {editingId === client._id ? ( // Use client._id
+
+                  {/* Phone Number */}
+                  <TableCell>
+                    {editingId === client._id ? (
                       <Input
                         value={editedClient?.phoneNumber || ""}
                         onChange={(e) => {
@@ -283,8 +266,10 @@ export default function ClientTable() {
                       client.phoneNumber
                     )}
                   </TableCell>
-                  <TableCell className="border">
-                    {editingId === client._id ? ( // Use client._id
+
+                  {/* Responsable */}
+                  <TableCell>
+                    {editingId === client._id ? (
                       <Input
                         value={editedClient?.responsable || ""}
                         onChange={(e) => {
@@ -301,12 +286,18 @@ export default function ClientTable() {
                       client.responsable
                     )}
                   </TableCell>
-                  <TableCell className="border">
 
-                    {formatDate(client.updatedAt)}
-                  </TableCell>
-                  <TableCell className="border">{client.totalPrice} MRU</TableCell>
-                  <TableCell className="border">
+                  {/* Date of Booking */}
+                  <TableCell>{formatDate(client.dateOfBooking || new Date().toISOString())}</TableCell>
+
+                  {/* Date of Ending */}
+                  <TableCell>{formatDate(client.dateOfEnding || new Date().toISOString())}</TableCell>
+
+                  {/* Total Price */}
+                  <TableCell>{(client.totalPrice || 0).toLocaleString()} MRU</TableCell>
+
+                  {/* Actions */}
+                  <TableCell>
                     {editingId === client._id ? (
                       <div className="flex space-x-2">
                         <Button onClick={() => handleSave(client._id!.toString())} size="sm" disabled={loading}>
@@ -347,6 +338,13 @@ export default function ClientTable() {
                         >
                           Éditer
                         </Button>
+                        {/* Checkout Icon */}
+                        <Button
+                          onClick={() => client._id && handleCheckout(client._id.toString())}
+                          size="sm"
+                        >
+                          <CheckCircle className="h-4 w-4" color="white" />
+                        </Button>
                       </div>
                     )}
                   </TableCell>
@@ -355,33 +353,44 @@ export default function ClientTable() {
             </TableBody>
           </Table>
 
-          {/* Pagination Controls (only show if more than 15 clients) */}
+          {/* Pagination */}
           {clients.length > clientsPerPage && (
-            <div className="flex justify-between items-center mt-4">
-              <Button
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-                variant="outline"
-                size="sm"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                variant="outline"
-                size="sm"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+            <div className="flex justify-between items-center px-4 py-2 bg-gray-100 border-t border-gray-200">
+              <div className="text-sm text-gray-700">
+                {indexOfFirstClient + 1} - {indexOfLastClient} of {clients.length}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="sm"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  size="sm"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
         </div>
       ) : (
         <p className="text-gray-500">Aucun client trouvé.</p>
+      )}
+
+      {/* Invoice Modal */}
+      {showInvoice && selectedClient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className=" p-8 rounded-lg w-[595px] max-w-full">
+            <Invoice userData={selectedClient} onClose={() => setShowInvoice(false)} />
+          </div>
+        </div>
       )}
     </div>
   );
