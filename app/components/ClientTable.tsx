@@ -115,6 +115,8 @@ export default function ClientTable() {
       } else {
         toast.error("Échec de la suppression du client");
       }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Échec de la suppression du client");
     } finally {
