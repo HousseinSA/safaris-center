@@ -18,8 +18,6 @@ interface InvoiceProps {
 
 const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
     const invoiceRef = useRef<HTMLDivElement>(null);
-    console.log('userdata', userData)
-
     const handleDownload = async () => {
         if (!invoiceRef.current || !userData) return;
 
@@ -75,7 +73,8 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         pdf.save(`${userData.name.replace(/\s+/g, '_')}_facture.pdf`);
     };
     const formatDate = (dateString: string) => {
-        return format(new Date(dateString), "dd MMM yyyy, hh:mm a");
+        const date = new Date(dateString);
+        return format(date, "yyyy/MM/dd, hh:mm a");
     };
 
     if (!userData) return null;

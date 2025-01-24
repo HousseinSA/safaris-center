@@ -128,13 +128,12 @@ export default function ClientTable() {
     router.push(`/client/${clientId}`);
   };
 
-  console.log('clients data ', clients)
 
+  console.log(clients)
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return format(date, "dd MMM yyyy, HH:mm");
+      return format(date, "yyyy/MM/dd, hh:mm a");
   };
-
   const handleCheckout = async (clientId: string) => {
     try {
       const response = await fetch(`/api/clients?id=${clientId}`);
@@ -162,7 +161,7 @@ export default function ClientTable() {
               <TableRow className="text-white">
                 <TableHead className="text-white">Nom du client</TableHead>
                 <TableHead className="text-white">Services</TableHead>
-                <TableHead className="text-white">Paiement initial</TableHead>
+                <TableHead className="text-white">Montant avancé</TableHead>
                 <TableHead className="text-white">Méthode de paiement</TableHead>
                 <TableHead className="text-white">Numéro de téléphone</TableHead>
                 <TableHead className="text-white">Responsable</TableHead>
@@ -272,7 +271,7 @@ export default function ClientTable() {
                     )}
                   </TableCell>
 
-                  <TableCell>{formatDate(client.dateOfBooking || new Date().toISOString())}</TableCell>
+                  <TableCell>{formatDate(client.dateOfBooking)}</TableCell>
                   {/* Montant Restant (Remaining Amount) */}
                   <TableCell>{(client.remainingTotal || 0).toLocaleString()} MRU</TableCell>
 

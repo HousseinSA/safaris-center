@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
+
 const servicesList = [
   { name: "Qued Sefari", price: 0 },
   { name: "Camping Nkc Scape", price: 0 },
@@ -37,26 +38,28 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   const [selectedService, setSelectedService] = useState<Service>(servicesList[0]);
   const [serviceAmount, setServiceAmount] = useState<number>(selectedService.price);
   const [upfrontPayment, setUpfrontPayment] = useState<number>(0);
-  const [serviceStartDate, setServiceStartDate] = useState<string>(new Date().toISOString().slice(0, 16));
-  const [serviceEndDate, setServiceEndDate] = useState<string>(new Date().toISOString().slice(0, 16));
+  const [serviceDuration, setServiceDuration] = useState<number>(1); // Duration in hours
   const [services, setServices] = useState<Service[]>(client?.services || []);
   const [paymentMethod, setPaymentMethod] = useState<string>(client?.paymentMethod || paymentMethods[0]);
   const [phoneNumber, setPhoneNumber] = useState<string>(client?.phoneNumber || "");
   const [responsable, setResponsable] = useState<string>(client?.responsable || "");
-  const [dateOfBooking, setDateOfBooking] = useState<string>("");
+  const [dateOfBooking, setDateOfBooking] = useState<string>(format(new Date(), "MM/dd")); // Reservation date (MM/DD)
+  const [serviceStartDate, setServiceStartDate] = useState<string>(format(new Date(), "MM/dd")); // Service start date (MM/DD)
   const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return format(date, "dd MMM yyyy, hh:mm a");
+    return format(date, "yyyy/MM/dd, hh:mm a");
   };
 
   useEffect(() => {
     if (client) {
-      setDateOfBooking(client.dateOfBooking || new Date().toISOString());
+      setDateOfBooking(client.dateOfBooking ? format(new Date(client.dateOfBooking), "MM/dd") : format(new Date(), "MM/dd"));
+      setServiceStartDate(client.services[0]?.startDate ? format(new Date(client.services[0].startDate), "MM/dd") : format(new Date(), "MM/dd"));
     } else {
-      setDateOfBooking(new Date().toISOString());
+      setDateOfBooking(format(new Date(), "MM/dd"));
+      setServiceStartDate(format(new Date(), "MM/dd"));
     }
   }, [client]);
 
@@ -67,7 +70,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   }, [selectedService, editingServiceIndex]);
 
   const handleAddOrModifyService = () => {
-    // Check if the service already exists in the list
+    // Vérifier si le service existe déjà dans la liste
     const isServiceAlreadyAdded = services.some(
       (service) => service.name === selectedService.name
     );
@@ -77,7 +80,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
       return;
     }
 
-    // Validate serviceAmount and upfrontPayment
+    // Valider le montant du service et le paiement initial
     if (serviceAmount <= 0) {
       toast.error("Veuillez entrer un montant valide pour le service.");
       return;
@@ -88,28 +91,35 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
       return;
     }
 
-    // Convert dates to Date objects for comparison
-    const reservationDate = new Date(dateOfBooking);
-    const startDate = new Date(serviceStartDate);
-    const endDate = new Date(serviceEndDate);
-
-    // Validate service dates
-    if (startDate < reservationDate) {
-      toast.error("La date de début du service ne peut pas être avant la date de réservation.");
+    // Valider la durée du service
+    if (serviceDuration < 1) {
+      toast.error("La durée du service doit être d'au moins 1 heure.");
       return;
     }
 
-    if (endDate < reservationDate) {
-      toast.error("La date de fin du service ne peut pas être avant la date de réservation.");
+    // Valider le format des dates
+    if (!/^\d{2}\/\d{2}$/.test(dateOfBooking) || !/^\d{2}\/\d{2}$/.test(serviceStartDate)) {
+      toast.error("Veuillez entrer des dates valides au format MM/JJ.");
       return;
     }
 
-    if (endDate < startDate) {
-      toast.error("La date de fin du service ne peut pas être avant la date de début.");
+    // Convertir les dates en objets Date
+    const [bookingMonth, bookingDay] = dateOfBooking.split("/");
+    const bookingDate = new Date(new Date().getFullYear(), parseInt(bookingMonth) - 1, parseInt(bookingDay));
+
+    const [startMonth, startDay] = serviceStartDate.split("/");
+    const startDate = new Date(new Date().getFullYear(), parseInt(startMonth) - 1, parseInt(startDay), new Date().getHours(), new Date().getMinutes());
+
+    // Valider que la date de réservation n'est pas après la date de début du service
+    if (bookingDate > startDate) {
+      toast.error("La date de réservation ne peut pas être après la date de début du service.");
       return;
     }
 
-    // Proceed to create or modify the service
+    // Calculer la date de fin en fonction de la durée
+    const endDate = new Date(startDate.getTime() + serviceDuration * 60 * 60 * 1000);
+
+    // Créer ou modifier le service
     const newService = {
       name: selectedService.name,
       price: serviceAmount,
@@ -127,15 +137,16 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
       toast.success("Service modifié avec succès !");
     } else {
       setServices([...services, newService]);
-      toast.success("Service créé avec succès !");
+      toast.success("Service ajouté avec succès !");
     }
 
-    // Reset form fields
+    // Réinitialiser les champs du formulaire
     setServiceAmount(selectedService.price);
     setUpfrontPayment(0);
-    setServiceStartDate(new Date().toISOString().slice(0, 16));
-    setServiceEndDate(new Date().toISOString().slice(0, 16));
+    setServiceDuration(1);
+    setServiceStartDate(format(new Date(), "MM/dd"));
   };
+
   const handleRemoveService = (index: number) => {
     const updatedServices = services.filter((_, i) => i !== index);
     setServices(updatedServices);
@@ -147,27 +158,29 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
     setSelectedService(servicesList.find((s) => s.name === service.name) || servicesList[0]);
     setServiceAmount(service.price);
     setUpfrontPayment(service.upfrontPayment);
-    setServiceStartDate(service.startDate.slice(0, 16));
-    setServiceEndDate(service.endDate.slice(0, 16));
+    setServiceDuration(Math.round((new Date(service.endDate).getTime() - new Date(service.startDate).getTime()) / (1000 * 60 * 60)));
+    setServiceStartDate(format(new Date(service.startDate), "MM/dd"));
     setEditingServiceIndex(index);
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const totalPrice = services.reduce((sum, service) => sum + service.price, 0);
     const remainingTotal = services.reduce((sum, service) => sum + service.remainingPayment, 0);
 
-    if (!name || !paymentMethod || !phoneNumber || !responsable || services.length === 0 || !dateOfBooking) {
+    // Validate required fields
+    if (!name || !paymentMethod || !phoneNumber || !responsable || services.length === 0 || !dateOfBooking || !serviceStartDate) {
       toast.error("Veuillez remplir tous les champs correctement.");
       return;
     }
 
+    // Validate phone number format
     if (!/^[234]\d{7}$/.test(phoneNumber)) {
       toast.error("Le numéro de téléphone doit commencer par 2, 3 ou 4 et avoir exactement 8 chiffres.");
       return;
     }
 
+    // Validate upfront payment for each service
     for (const service of services) {
       if (service.upfrontPayment > service.price) {
         toast.error(`Le paiement initial pour le service "${service.name}" ne peut pas dépasser le montant du service.`);
@@ -175,13 +188,32 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
       }
     }
 
+    // Parse reservation date (MM/dd) and convert to full ISO string
+    const [bookingMonth, bookingDay] = dateOfBooking.split("/");
+    const bookingDate = new Date(new Date().getFullYear(), parseInt(bookingMonth) - 1, parseInt(bookingDay), new Date().getHours(), new Date().getMinutes());
+
+    // Parse service start date (MM/dd) and convert to full ISO string
+    const [startMonth, startDay] = serviceStartDate.split("/");
+    const startDate = new Date(new Date().getFullYear(), parseInt(startMonth) - 1, parseInt(startDay), new Date().getHours(), new Date().getMinutes());
+
+    // Validate that reservation date is not after the service start date
+    if (bookingDate > startDate) {
+      toast.error("La date de réservation ne peut pas être après la date de début du service.");
+      return;
+    }
+
+    // Create the new client object with proper ISO date strings
     const newClient: Client = {
       name,
-      services,
+      services: services.map(service => ({
+        ...service,
+        startDate: new Date(service.startDate).toISOString(),
+        endDate: new Date(service.endDate).toISOString(),
+      })),
       paymentMethod,
       phoneNumber,
       responsable,
-      dateOfBooking,
+      dateOfBooking: bookingDate.toISOString(), // Store as ISO string
       totalPrice,
       remainingTotal,
       createdAt: client?.createdAt || new Date().toISOString(),
@@ -210,12 +242,13 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
           setPhoneNumber("");
           setResponsable("");
           setDateOfBooking("");
+          setServiceStartDate("");
           router.push("/");
         } else {
           toast.error("Échec de l'enregistrement du client.");
         }
-        
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast.error("Échec de l'enregistrement du client.");
       } finally {
@@ -232,10 +265,30 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
           id="name"
           type="text"
           value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="dateOfBooking">Date de réservation </Label>
+        <Input
+          id="dateOfBooking"
+          type="date"
+          value={
+            dateOfBooking
+              ? `${new Date().getFullYear()}-${dateOfBooking.replace("/", "-")}` // Convert MM/DD to YYYY-MM-DD
+              : ""
+          }
           onChange={(e) => {
             const value = e.target.value;
-            if (/^[A-Za-z\s]*$/.test(value)) {
-              setName(value);
+            if (value) {
+              // Extract the month and day from the date string (YYYY-MM-DD)
+              const [, month, day] = value.split("-");
+              const formattedDate = `${month}/${day}`;
+              setDateOfBooking(formattedDate);
+            } else {
+              setDateOfBooking("");
             }
           }}
           required
@@ -271,71 +324,62 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
             id="serviceAmount"
             type="number"
             placeholder="Montant"
-            value={serviceAmount === null ? "" : serviceAmount} // Show empty string if null
-            onChange={(e) => {
-              const value = e.target.value;
-              // If the input is empty, set to null (or empty string)
-              if (value === "") {
-                // @ts-expect-error fix
-                setServiceAmount(null); // or setServiceAmount("");
-              } else {
-                // Otherwise, parse the value as a number
-                const parsedValue = parseFloat(value);
-                if (!isNaN(parsedValue)) {
-                  setServiceAmount(parsedValue);
-                }
-              }
-            }}
+            value={serviceAmount}
+            onChange={(e) => setServiceAmount(parseFloat(e.target.value))}
             required
             min={0}
           />
         </div>
 
         <div>
-          <Label htmlFor="upfrontPayment">Paiement initial</Label>
+          <Label htmlFor="upfrontPayment">Montant avancé</Label>
           <Input
             id="upfrontPayment"
             type="number"
             placeholder="Paiement initial"
-            value={upfrontPayment === null ? "" : upfrontPayment} // Show empty string if null
-            onChange={(e) => {
-              const value = e.target.value;
-              // If the input is empty, set to null (or empty string)
-              if (value === "") {
-                // @ts-expect-error fix
-                setUpfrontPayment(null); // or setUpfrontPayment("");
-              } else {
-                // Otherwise, parse the value as a number
-                const parsedValue = parseFloat(value);
-                if (!isNaN(parsedValue)) {
-                  setUpfrontPayment(parsedValue);
-                }
-              }
-            }}
+            value={upfrontPayment}
+            onChange={(e) => setUpfrontPayment(parseFloat(e.target.value))}
             required
             min={0}
           />
         </div>
 
+
         <div>
-          <Label htmlFor="serviceStartDate">Date de début de service</Label>
+          <Label htmlFor="serviceStartDate">Date de début du service </Label>
           <Input
             id="serviceStartDate"
-            type="datetime-local"
-            value={serviceStartDate}
-            onChange={(e) => setServiceStartDate(e.target.value)}
+            type="date"
+            value={
+              serviceStartDate
+                ? `${new Date().getFullYear()}-${serviceStartDate.replace("/", "-")}` // Convert MM/DD to YYYY-MM-DD
+                : ""
+            }
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value) {
+                // Extract the month and day from the date string (YYYY-MM-DD)
+                const [, month, day] = value.split("-");
+                const formattedDate = `${month}/${day}`;
+                setServiceStartDate(formattedDate);
+              } else {
+                setServiceStartDate("");
+              }
+            }}
             required
           />
         </div>
 
         <div>
-          <Label htmlFor="serviceEndDate">Date de fin de service</Label>
+          <Label htmlFor="serviceDuration">Durée du service (heures)</Label>
           <Input
-            id="serviceEndDate"
-            type="datetime-local"
-            value={serviceEndDate}
-            onChange={(e) => setServiceEndDate(e.target.value)}
+            id="serviceDuration"
+            type="number"
+            placeholder="Durée"
+            value={serviceDuration}
+            onChange={(e) => setServiceDuration(parseInt(e.target.value))}
             required
+            min={1}
           />
         </div>
       </div>
@@ -356,10 +400,10 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
               <TableRow>
                 <TableHead className="text-white">Service</TableHead>
                 <TableHead className="text-white">Montant</TableHead>
-                <TableHead className="text-white">Paiement initial</TableHead>
-                <TableHead className="text-white">Paiement restant</TableHead>
-                <TableHead className="text-white">Date de début de service</TableHead>
-                <TableHead className="text-white">Date de fin de service</TableHead>
+                <TableHead className="text-white">Montant avancé</TableHead>
+                <TableHead className="text-white">Montant restant</TableHead>
+                <TableHead className="text-white">Debut de service </TableHead>
+                <TableHead className="text-white">   Fin de service</TableHead>
                 <TableHead className="text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -370,8 +414,8 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
                   <TableCell>{service.price.toLocaleString()} MRU</TableCell>
                   <TableCell>{service.upfrontPayment.toLocaleString()} MRU</TableCell>
                   <TableCell>{service.remainingPayment.toLocaleString()} MRU</TableCell>
-                  <TableCell>{formatDate(service.startDate)}</TableCell> {/* Formatted start date */}
-                  <TableCell>{formatDate(service.endDate)}</TableCell> {/* Formatted end date */}
+                  <TableCell>{formatDate(service.startDate)}</TableCell>
+                  <TableCell>{formatDate(service.endDate)}</TableCell>
                   <TableCell>
                     <Button
                       type="button"
@@ -392,24 +436,14 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
               ))}
             </TableBody>
           </Table>
-          <div className="mt-2 text-right ">
-            <span className="text-primary font-semibold">Montant Restant: </span> {services.reduce((sum, service) => sum + service.remainingPayment, 0).toLocaleString()} MRU
+          <div className="mt-2 text-right">
+            <span className="text-primary font-semibold">Montant restant: </span> {services.reduce((sum, service) => sum + service.remainingPayment, 0).toLocaleString()} MRU
             <br />
-            <span className="text-primary font-semibold">Total Montant: </span> {services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU
-
+            <span className="text-primary font-semibold">Montant total: </span> {services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU
           </div>
         </div>
       )}
-      <div>
-        <Label htmlFor="dateOfBooking">Date de réservation</Label>
-        <Input
-          id="dateOfBooking"
-          type="datetime-local"
-          value={dateOfBooking.slice(0, 16)}
-          onChange={(e) => setDateOfBooking(new Date(e.target.value).toISOString())}
-          required
-        />
-      </div>
+
       <div>
         <Label htmlFor="paymentMethod">Méthode de paiement</Label>
         <select
@@ -427,19 +461,13 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
         </select>
       </div>
 
-
       <div>
         <Label htmlFor="phoneNumber">Numéro de téléphone</Label>
         <Input
           id="phoneNumber"
           type="text"
           value={phoneNumber}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d*$/.test(value) && value.length <= 8) {
-              setPhoneNumber(value);
-            }
-          }}
+          onChange={(e) => setPhoneNumber(e.target.value)}
           maxLength={8}
           required
         />
@@ -451,27 +479,10 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
           id="responsable"
           type="text"
           value={responsable}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (/^[A-Za-z\s]*$/.test(value)) {
-              setResponsable(value);
-            }
-          }}
+          onChange={(e) => setResponsable(e.target.value)}
           required
         />
       </div>
-
-
-      {/* <div>
-        <Label htmlFor="dateOfEnding">Date de fin</Label>
-        <Input
-          id="dateOfEnding"
-          type="datetime-local"
-          value={dateOfEnding.slice(0, 16)}
-          onChange={(e) => setDateOfEnding(new Date(e.target.value).toISOString())}
-          required
-        />
-      </div> */}
 
       <Button type="submit" className="text-white" disabled={loading}>
         {loading ? <BeatLoader color="#ffffff" size={8} /> : client ? "Modifier" : "Enregistrer"}
