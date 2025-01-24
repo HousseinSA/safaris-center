@@ -83,3 +83,19 @@ body {
   }
   
 }
+
+@layer utilities {
+  @media print {
+    .max-h-\[300px\] {
+      max-height: none !important; /* Allow all services to be visible in print */
+    }
+
+    .overflow-y-auto {
+      overflow: visible !important; /* Disable scrolling in print */
+    }
+
+    .invoice-bg {
+      display: none; /* Hide background image in print */
+    }
+  }
+}

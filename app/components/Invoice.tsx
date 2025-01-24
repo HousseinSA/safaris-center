@@ -36,9 +36,9 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         clone.style.backgroundColor = 'white';
 
         // Fix service list height in clone
-        const serviceList = clone.querySelector('.max-h-\\[200px\\]');
+        const serviceList = clone.querySelector('.max-h-\\[300px\\]');
         if (serviceList) {
-            serviceList.classList.remove('max-h-[200px]');
+            serviceList.classList.remove('max-h-[300px]');
             serviceList.classList.add('h-auto');
         }
 
@@ -100,7 +100,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                         <X className="w-5 h-5" />
                     </button>
 
-                    <div ref={invoiceRef} className="bg-white rounded-lg shadow-2xl relative">
+                    <div ref={invoiceRef} className="bg-white rounded-lg shadow-2xl relative h-[600px] overflow-hidden">
                         <div
                             className="invoice-bg absolute inset-0 bg-contain bg-center opacity-10 z-0"
                             style={{
@@ -113,12 +113,12 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                             }}
                         />
 
-                        <div className="relative z-10 flex flex-col gap-4 p-6">
+                        <div className="relative z-10 flex flex-col gap-4 p-6 h-full">
                             {/* Header */}
                             <div className="flex justify-between items-start">
                                 <div>
                                     <div className="text-xs space-y-0.5">
-                                        <p className="font-semibold">Date de création:</p>
+                                        <p className="font-semibold">Date de facture:</p>
                                         <p>{format(new Date(), "dd/MM/yyyy HH:mm")}</p>
                                     </div>
                                     <Image
@@ -128,6 +128,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                                         alt="Logo"
                                         className="w-20 h-20 mt-2 object-contain"
                                     />
+                                    <p><span className=" text-[.8rem]">Tél:12345678</span></p>
                                 </div>
 
                                 <div className="flex flex-col items-end gap-2">
@@ -155,14 +156,13 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                                 <div className="text-xs">
                                     <p><span className="font-medium">Nom de client:</span> {userData.name}</p>
                                     <p><span className="font-medium">Date de réservation:</span> {formatDate(userData.dateOfBooking)}</p>
-
                                     <p><span className="font-medium">Tél:</span> {userData.phoneNumber}</p>
                                     <p><span className="font-medium">Méthode de Paiement:</span> {userData.paymentMethod}</p>
                                 </div>
                             </div>
 
                             {/* Services Table */}
-                            <div className="mt-4">
+                            <div className="mt-4 flex-1 overflow-y-auto">
                                 <div className="grid grid-cols-4 gap-2 bg-[#ED7D06] text-white p-2 text-xs font-semibold">
                                     <div>SERVICE</div>
                                     <div>SERVICE PRIX</div>
@@ -170,7 +170,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                                     <div>FIN DE SERVICE</div>
                                 </div>
 
-                                <div className="max-h-[200px] overflow-y-auto">
+                                <div className="max-h-[300px] overflow-y-auto">
                                     {userData.services.map((service, index) => (
                                         <div key={index} className="grid grid-cols-4 gap-2 py-2 text-xs border-b">
                                             <div className="break-words">{service.name}</div>
@@ -191,7 +191,6 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                                     </span>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
