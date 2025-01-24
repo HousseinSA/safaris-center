@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -116,7 +115,6 @@ export default function ClientTable() {
       } else {
         toast.error("Échec de la suppression du client");
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Échec de la suppression du client");
     } finally {
@@ -128,19 +126,20 @@ export default function ClientTable() {
     router.push(`/client/${clientId}`);
   };
 
+  console.log('clients data ', clients)
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, "dd MMM yyyy, HH:mm");
   };
 
-  // Fetch client data and show invoice modal
   const handleCheckout = async (clientId: string) => {
     try {
       const response = await fetch(`/api/clients?id=${clientId}`);
       const data = await response.json();
       if (response.ok) {
-        setSelectedClient(data); // Set the selected client data
-        setShowInvoice(true); // Show the invoice modal
+        setSelectedClient(data);
+        setShowInvoice(true);
       } else {
         toast.error("Failed to fetch client data");
       }
@@ -156,27 +155,25 @@ export default function ClientTable() {
 
       {clients.length > 0 ? (
         <div className="w-full overflow-x-auto">
-          {/* Table Header */}
           <Table>
-            <TableHeader className="bg-primary ">
+            <TableHeader className="bg-primary">
               <TableRow className="text-white">
                 <TableHead className="text-white">Nom du client</TableHead>
                 <TableHead className="text-white">Services</TableHead>
                 <TableHead className="text-white">Paiement initial</TableHead>
-                <TableHead className="text-white">Paiement restant</TableHead>
                 <TableHead className="text-white">Méthode de paiement</TableHead>
                 <TableHead className="text-white">Numéro de téléphone</TableHead>
                 <TableHead className="text-white">Responsable</TableHead>
                 <TableHead className="text-white">Date de réservation</TableHead>
-                <TableHead className="text-white">Date de fin</TableHead>
-                <TableHead className="text-white">Total</TableHead>
+                <TableHead className="text-white">Montant Restant</TableHead>
+                <TableHead className="text-white">Total Montant</TableHead>
                 <TableHead className="text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {currentClients.map((client) => (
                 <TableRow key={client._id?.toString()}>
-                  {/* Client Name */}
                   <TableCell>
                     {editingId === client._id ? (
                       <Input
@@ -196,7 +193,6 @@ export default function ClientTable() {
                     )}
                   </TableCell>
 
-                  {/* Services */}
                   <TableCell>
                     {client.services.map((service, index) => (
                       <div key={index}>
@@ -205,7 +201,6 @@ export default function ClientTable() {
                     ))}
                   </TableCell>
 
-                  {/* Upfront Payment */}
                   <TableCell>
                     {client.services.map((service, index) => (
                       <div key={index}>
@@ -214,16 +209,6 @@ export default function ClientTable() {
                     ))}
                   </TableCell>
 
-                  {/* Remaining Payment */}
-                  <TableCell>
-                    {client.services.map((service, index) => (
-                      <div key={index}>
-                        {(service.remainingPayment || 0).toLocaleString()} MRU
-                      </div>
-                    ))}
-                  </TableCell>
-
-                  {/* Payment Method */}
                   <TableCell>
                     {editingId === client._id ? (
                       <select
@@ -247,7 +232,6 @@ export default function ClientTable() {
                     )}
                   </TableCell>
 
-                  {/* Phone Number */}
                   <TableCell>
                     {editingId === client._id ? (
                       <Input
@@ -267,7 +251,6 @@ export default function ClientTable() {
                     )}
                   </TableCell>
 
-                  {/* Responsable */}
                   <TableCell>
                     {editingId === client._id ? (
                       <Input
@@ -287,16 +270,11 @@ export default function ClientTable() {
                     )}
                   </TableCell>
 
-                  {/* Date of Booking */}
                   <TableCell>{formatDate(client.dateOfBooking || new Date().toISOString())}</TableCell>
+                  {/* Montant Restant (Remaining Amount) */}
+                  <TableCell>{(client.remainingTotal || 0).toLocaleString()} MRU</TableCell>
 
-                  {/* Date of Ending */}
-                  <TableCell>{formatDate(client.dateOfEnding || new Date().toISOString())}</TableCell>
-
-                  {/* Total Price */}
                   <TableCell>{(client.totalPrice || 0).toLocaleString()} MRU</TableCell>
-
-                  {/* Actions */}
                   <TableCell>
                     {editingId === client._id ? (
                       <div className="flex space-x-2">
@@ -338,7 +316,6 @@ export default function ClientTable() {
                         >
                           Éditer
                         </Button>
-                        {/* Checkout Icon */}
                         <Button
                           onClick={() => client._id && handleCheckout(client._id.toString())}
                           size="sm"
@@ -353,7 +330,6 @@ export default function ClientTable() {
             </TableBody>
           </Table>
 
-          {/* Pagination */}
           {clients.length > clientsPerPage && (
             <div className="flex justify-between items-center px-4 py-2 bg-gray-100 border-t border-gray-200">
               <div className="text-sm text-gray-700">
@@ -384,10 +360,9 @@ export default function ClientTable() {
         <p className="text-gray-500">Aucun client trouvé.</p>
       )}
 
-      {/* Invoice Modal */}
       {showInvoice && selectedClient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className=" p-8 rounded-lg w-[595px] max-w-full">
+          <div className="p-8 rounded-lg w-[595px] max-w-full">
             <Invoice userData={selectedClient} onClose={() => setShowInvoice(false)} />
           </div>
         </div>

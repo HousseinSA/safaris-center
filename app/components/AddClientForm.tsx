@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,11 +16,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import { format } from "date-fns";
 const servicesList = [
-  { name: "Qued Sefari", price: 1000 },
-  { name: "Camping Nkc Scape", price: 1500 },
-  { name: "Camping personnalisé", price: 2000 },
+  { name: "Qued Sefari", price: 0 },
+  { name: "Camping Nkc Scape", price: 0 },
+  { name: "Camping personnalisé", price: 0 },
 ];
 
 const paymentMethods = ["Cash", "Bankily", "Masrivi", "Sedad", "Click"];
@@ -34,7 +33,6 @@ interface AddClientFormProps {
 export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   const router = useRouter();
   const [name, setName] = useState<string>(client?.name || "");
-  // @ts-expect-error fix 
   const [selectedService, setSelectedService] = useState<Service>(servicesList[0]);
   const [serviceAmount, setServiceAmount] = useState<number>(selectedService.price);
   const [upfrontPayment, setUpfrontPayment] = useState<number>(0);
@@ -49,10 +47,14 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return format(date, "dd MMM yyyy, hh:mm a");
+  };
+
   useEffect(() => {
     if (client) {
       setDateOfBooking(client.dateOfBooking || new Date().toISOString());
-      setDateOfEnding(client.dateOfEnding || new Date().toISOString());
     } else {
       setDateOfBooking(new Date().toISOString());
       setDateOfEnding(new Date().toISOString());
@@ -66,13 +68,11 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   }, [selectedService, editingServiceIndex]);
 
   const handleAddOrModifyService = () => {
-    // Validate service amount
     if (serviceAmount <= 0) {
       toast.error("Veuillez entrer un montant valide pour le service.");
       return;
     }
 
-    // Validate upfront payment
     if (upfrontPayment > serviceAmount) {
       toast.error("Le paiement initial ne peut pas dépasser le montant du service.");
       return;
@@ -88,19 +88,16 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
     };
 
     if (editingServiceIndex !== null) {
-      // Modify existing service
       const updatedServices = [...services];
       updatedServices[editingServiceIndex] = newService;
       setServices(updatedServices);
       setEditingServiceIndex(null);
       toast.success("Service modifié avec succès !");
     } else {
-      // Add new service
       setServices([...services, newService]);
       toast.success("Service créé avec succès !");
     }
 
-    // Reset input fields
     setServiceAmount(selectedService.price);
     setUpfrontPayment(0);
     setServiceStartDate(new Date().toISOString().slice(0, 16));
@@ -114,7 +111,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
 
   const handleEditService = (index: number) => {
     const service = services[index];
-    // @ts-expect-error fix 
     setSelectedService(servicesList.find((s) => s.name === service.name) || servicesList[0]);
     setServiceAmount(service.price);
     setUpfrontPayment(service.upfrontPayment);
@@ -126,19 +122,19 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate input data
+    const totalPrice = services.reduce((sum, service) => sum + service.price, 0);
+    const remainingTotal = services.reduce((sum, service) => sum + service.remainingPayment, 0);
+
     if (!name || !paymentMethod || !phoneNumber || !responsable || services.length === 0 || !dateOfBooking || !dateOfEnding) {
       toast.error("Veuillez remplir tous les champs correctement.");
       return;
     }
 
-    // Validate phone number
     if (!/^[234]\d{7}$/.test(phoneNumber)) {
       toast.error("Le numéro de téléphone doit commencer par 2, 3 ou 4 et avoir exactement 8 chiffres.");
       return;
     }
 
-    // Validate upfront payment for all services
     for (const service of services) {
       if (service.upfrontPayment > service.price) {
         toast.error(`Le paiement initial pour le service "${service.name}" ne peut pas dépasser le montant du service.`);
@@ -146,10 +142,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
       }
     }
 
-    // Calculate total price (sum of all remaining payments)
-    const totalPrice = services.reduce((sum, service) => sum + service.remainingPayment, 0);
-
-    // Create client object
     const newClient: Client = {
       name,
       services,
@@ -157,8 +149,8 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
       phoneNumber,
       responsable,
       dateOfBooking,
-      dateOfEnding,
       totalPrice,
+      remainingTotal,
       createdAt: client?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -166,12 +158,10 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
     setLoading(true);
 
     if (onSave) {
-      // If onSave callback is provided, use it (for edit mode)
       onSave(newClient);
       toast.success("Client modifié avec succès !");
       router.push("/");
     } else {
-      // Otherwise, save to MongoDB (for add mode)
       try {
         const response = await fetch("/api/clients", {
           method: "POST",
@@ -192,7 +182,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
         } else {
           toast.error("Échec de l'enregistrement du client.");
         }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast.error("Échec de l'enregistrement du client.");
       } finally {
@@ -229,14 +218,13 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
               const selected = servicesList.find(
                 (service) => service.name === e.target.value
               );
-              // @ts-expect-error fix
               if (selected) setSelectedService(selected);
             }}
             className="w-full p-2 border rounded"
           >
             {servicesList.map((service, index) => (
               <option key={index} value={service.name}>
-                {service.name} ({(service.price || 0).toLocaleString()} MRU)
+                {service.name}
               </option>
             ))}
           </select>
@@ -248,9 +236,22 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
             id="serviceAmount"
             type="number"
             placeholder="Montant"
-            value={serviceAmount}
-            onChange={(e) => setServiceAmount(parseFloat(e.target.value))}
+            value={serviceAmount === null ? "" : serviceAmount} // Show empty string if null
+            onChange={(e) => {
+              const value = e.target.value;
+              // If the input is empty, set to null (or empty string)
+              if (value === "") {
+                setServiceAmount(null); // or setServiceAmount("");
+              } else {
+                // Otherwise, parse the value as a number
+                const parsedValue = parseFloat(value);
+                if (!isNaN(parsedValue)) {
+                  setServiceAmount(parsedValue);
+                }
+              }
+            }}
             required
+            min={0}
           />
         </div>
 
@@ -260,19 +261,27 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
             id="upfrontPayment"
             type="number"
             placeholder="Paiement initial"
-            value={upfrontPayment}
+            value={upfrontPayment === null ? "" : upfrontPayment} // Show empty string if null
             onChange={(e) => {
-              const value = parseFloat(e.target.value);
-              if (!isNaN(value)) {
-                setUpfrontPayment(value);
+              const value = e.target.value;
+              // If the input is empty, set to null (or empty string)
+              if (value === "") {
+                setUpfrontPayment(null); // or setUpfrontPayment("");
+              } else {
+                // Otherwise, parse the value as a number
+                const parsedValue = parseFloat(value);
+                if (!isNaN(parsedValue)) {
+                  setUpfrontPayment(parsedValue);
+                }
               }
             }}
             required
+            min={0}
           />
         </div>
 
         <div>
-          <Label htmlFor="serviceStartDate">Date de début</Label>
+          <Label htmlFor="serviceStartDate">Date de début de service</Label>
           <Input
             id="serviceStartDate"
             type="datetime-local"
@@ -283,7 +292,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
         </div>
 
         <div>
-          <Label htmlFor="serviceEndDate">Date de fin</Label>
+          <Label htmlFor="serviceEndDate">Date de fin de service</Label>
           <Input
             id="serviceEndDate"
             type="datetime-local"
@@ -309,12 +318,12 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
             <TableHeader className="bg-primary">
               <TableRow>
                 <TableHead className="text-white">Service</TableHead>
-                <TableHead className="text-white" >Montant</TableHead>
-                <TableHead className="text-white" >Paiement initial</TableHead>
-                <TableHead className="text-white" >Paiement restant</TableHead>
-                <TableHead className="text-white" >Date de début</TableHead>
-                <TableHead className="text-white" >Date de fin</TableHead>
-                <TableHead className="text-white" >Actions</TableHead>
+                <TableHead className="text-white">Montant</TableHead>
+                <TableHead className="text-white">Paiement initial</TableHead>
+                <TableHead className="text-white">Paiement restant</TableHead>
+                <TableHead className="text-white">Date de début de service</TableHead>
+                <TableHead className="text-white">Date de fin de service</TableHead>
+                <TableHead className="text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -324,8 +333,8 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
                   <TableCell>{service.price.toLocaleString()} MRU</TableCell>
                   <TableCell>{service.upfrontPayment.toLocaleString()} MRU</TableCell>
                   <TableCell>{service.remainingPayment.toLocaleString()} MRU</TableCell>
-                  <TableCell>{new Date(service.startDate).toLocaleString()}</TableCell>
-                  <TableCell>{new Date(service.endDate).toLocaleString()}</TableCell>
+                  <TableCell>{formatDate(service.startDate)}</TableCell> {/* Formatted start date */}
+                  <TableCell>{formatDate(service.endDate)}</TableCell> {/* Formatted end date */}
                   <TableCell>
                     <Button
                       type="button"
@@ -346,12 +355,24 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
               ))}
             </TableBody>
           </Table>
-          <div className="mt-2 text-right font-bold">
-            Total à payer: {services.reduce((sum, service) => sum + service.remainingPayment, 0).toLocaleString()} MRU
+          <div className="mt-2 text-right ">
+            <span className="text-primary font-semibold">Montant Restant: </span> {services.reduce((sum, service) => sum + service.remainingPayment, 0).toLocaleString()} MRU
+            <br />
+            <span className="text-primary font-semibold">Total Montant: </span> {services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU
+
           </div>
         </div>
       )}
-
+      <div>
+        <Label htmlFor="dateOfBooking">Date de réservation</Label>
+        <Input
+          id="dateOfBooking"
+          type="datetime-local"
+          value={dateOfBooking.slice(0, 16)}
+          onChange={(e) => setDateOfBooking(new Date(e.target.value).toISOString())}
+          required
+        />
+      </div>
       <div>
         <Label htmlFor="paymentMethod">Méthode de paiement</Label>
         <select
@@ -368,6 +389,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
           ))}
         </select>
       </div>
+
 
       <div>
         <Label htmlFor="phoneNumber">Numéro de téléphone</Label>
@@ -402,18 +424,8 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
         />
       </div>
 
-      <div>
-        <Label htmlFor="dateOfBooking">Date de réservation</Label>
-        <Input
-          id="dateOfBooking"
-          type="datetime-local"
-          value={dateOfBooking.slice(0, 16)}
-          onChange={(e) => setDateOfBooking(new Date(e.target.value).toISOString())}
-          required
-        />
-      </div>
 
-      <div>
+      {/* <div>
         <Label htmlFor="dateOfEnding">Date de fin</Label>
         <Input
           id="dateOfEnding"
@@ -422,7 +434,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
           onChange={(e) => setDateOfEnding(new Date(e.target.value).toISOString())}
           required
         />
-      </div>
+      </div> */}
 
       <Button type="submit" className="text-white" disabled={loading}>
         {loading ? <BeatLoader color="#ffffff" size={8} /> : client ? "Modifier" : "Enregistrer"}

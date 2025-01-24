@@ -7,29 +7,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { Client } from "@/lib/types";
 
-interface Service {
-    name: string;
-    price: number;
-    startDate: string;
-    endDate: string;
-}
 
-interface UserData {
-    name: string;
-    phoneNumber: string;
-    paymentMethod: string;
-    services: Service[];
-    totalPrice: number;
-}
 
 interface InvoiceProps {
-    userData: UserData | null;
+    userData: Client | null;
     onClose: () => void;
 }
 
 const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
     const invoiceRef = useRef<HTMLDivElement>(null);
+    console.log('userdata', userData)
 
     const handleDownload = async () => {
         if (!invoiceRef.current || !userData) return;
@@ -43,7 +32,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         clone.style.left = '-9999px';
         clone.style.top = '0';
         clone.style.width = `${contentWidth}px`;
-        clone.style.height = `${contentHeight}px`;
+        clone.style.height = `auto`;
         clone.style.backgroundColor = 'white';
 
         // Fix service list height in clone
@@ -85,12 +74,13 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         pdf.addImage(canvas, 'PNG', 0, 0, contentWidth, contentHeight);
         pdf.save(`${userData.name.replace(/\s+/g, '_')}_facture.pdf`);
     };
-
     const formatDate = (dateString: string) => {
         return format(new Date(dateString), "dd MMM yyyy, hh:mm a");
     };
 
     if (!userData) return null;
+
+    const totalAmount = userData.services.reduce((sum, service) => sum + service.price, 0);
 
     return (
         <AnimatePresence>
@@ -105,7 +95,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                     {/* Close Button with primary background */}
                     <button
                         onClick={onClose}
-                        className="absolute -top-2 -right-2 bg-primary text-white p-1 rounded-full z-50 hover:bg-primary/90 transition-colors"
+                        className="absolute -top-1 right-2 bg-primary text-white p-1 rounded-full z-50 hover:bg-primary/90 transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -132,8 +122,8 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                                         <p>{format(new Date(), "dd/MM/yyyy HH:mm")}</p>
                                     </div>
                                     <Image
-                                        width={20}
-                                        height={20}
+                                        width={100}
+                                        height={100}
                                         src="/safariscenter.png"
                                         alt="Logo"
                                         className="w-20 h-20 mt-2 object-contain"
@@ -163,9 +153,11 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                             <div className="mt-4 space-y-1">
                                 <h2 className="font-semibold">Facturer à :</h2>
                                 <div className="text-xs">
-                                    <p><span className="font-medium">Nom:</span> {userData.name}</p>
+                                    <p><span className="font-medium">Nom de client:</span> {userData.name}</p>
+                                    <p><span className="font-medium">Date de réservation:</span> {formatDate(userData.dateOfBooking)}</p>
+
                                     <p><span className="font-medium">Tél:</span> {userData.phoneNumber}</p>
-                                    <p><span className="font-medium">Paiement:</span> {userData.paymentMethod}</p>
+                                    <p><span className="font-medium">Méthode de Paiement:</span> {userData.paymentMethod}</p>
                                 </div>
                             </div>
 
@@ -173,9 +165,9 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                             <div className="mt-4">
                                 <div className="grid grid-cols-4 gap-2 bg-[#ED7D06] text-white p-2 text-xs font-semibold">
                                     <div>SERVICE</div>
-                                    <div>PRIX</div>
-                                    <div>DÉBUT</div>
-                                    <div>FIN</div>
+                                    <div>SERVICE PRIX</div>
+                                    <div>DÉBUT DE SERVICE</div>
+                                    <div>FIN DE SERVICE</div>
                                 </div>
 
                                 <div className="max-h-[200px] overflow-y-auto">
@@ -193,12 +185,13 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                             {/* Total */}
                             <div className="mt-4 flex justify-end">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-semibold">TOTAL:</span>
+                                    <span className="font-semibold"> TOTAL MONTANT:</span>
                                     <span className="font-bold">
-                                        {userData.totalPrice.toLocaleString()} MRU
+                                        {totalAmount.toLocaleString()} MRU
                                     </span>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
