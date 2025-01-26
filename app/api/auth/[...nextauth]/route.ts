@@ -4,9 +4,10 @@ import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
-import db from "@/lib/mongodb"
+import db from "@/lib/mongodb";
 
-export const authOptions = {
+// Define authOptions without exporting it
+const authOptions = {
     // @ts-expect-error fix later
     adapter: MongoDBAdapter(clientPromise),
     providers: [
@@ -58,7 +59,10 @@ export const authOptions = {
     },
     secret: process.env.NEXTAUTH_SECRET,
 };
+
+// Create the NextAuth handler
 // @ts-expect-error fix later
 const handler = NextAuth(authOptions);
 
+// Export the handler as GET and POST
 export { handler as GET, handler as POST };
