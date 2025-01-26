@@ -6,8 +6,8 @@ import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
 import db from "@/lib/mongodb";
 
-// Define authOptions without exporting it
-const authOptions = {
+// Define authOptions and export it
+export const authOptions = {
     // @ts-expect-error fix later
     adapter: MongoDBAdapter(clientPromise),
     providers: [
@@ -61,7 +61,7 @@ const authOptions = {
 };
 
 // Create the NextAuth handler
-// @ts-expect-error fix later
+// @ts-expect-error fix later 
 const handler = NextAuth(authOptions);
 
 // Export the handler as GET and POST

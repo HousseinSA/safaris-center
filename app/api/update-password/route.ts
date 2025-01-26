@@ -2,10 +2,10 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/mongodb"; // Adjust the import path to your MongoDB utility file
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "../auth/[...nextauth]/route"; // Correct import path
 
 export async function POST(request: Request) {
-    // @ts-expect-error fix 
+    // @ts-expect-error fix
     const session = await getServerSession(authOptions);
 
     // Ensure the user is authenticated
