@@ -71,6 +71,13 @@ body {
   
 }
 
+th {
+  background-color: inherit !important; /* Inherit the background color */
+}
+
+th:hover {
+  background-color: inherit !important; /* Ensure no hover effect */
+}
 
 @layer base {
   * {

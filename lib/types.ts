@@ -21,3 +21,18 @@ export interface Client {
     createdAt?: string;
     updatedAt?: string;
 }
+
+export interface Expense {
+    _id?: ObjectId | string;
+    name: string;
+    price: number;
+    responsable: string;
+    date: string; // Use ISO string or Date type
+    paymentMethod: string;
+}
+export interface MonthlyData {
+    month: string;
+    totalServices: number;
+    totalExpenses: number;
+    benefits: number;
+}

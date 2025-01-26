@@ -1,4 +1,4 @@
-import ClientTable from "./components/ClientTable";
+import ClientTable from "./components/clientTable/ClientTable";
 
 export default function Home() {
   return (

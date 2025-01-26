@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import AddClientForm from "@/components/AddClientForm";
+import AddClientForm from "@/app/components/clientForm/AddClientForm";
 import toast from "react-hot-toast";
 
 import { Client, } from '@/lib/types'
+import { Button } from "@/components/ui/button";
+import { Users } from "lucide-react";
+import Link from "next/link";
 
 
 export default function EditClientPage() {
@@ -68,8 +71,18 @@ export default function EditClientPage() {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4 text-primary">Modifier le client</h2>
+    <div >
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold mb-4 text-primary">Modifier le client</h2>
+        <Link href={'/'}>
+          <Button
+            className="bg-primary text-white hover:bg-primary-dark flex items-center space-x-2"
+          >
+            <Users className="h-4 w-4" /> {/* Icon */}
+            <span className="hidden md:inline-block" >Retour à la liste des clients</span> {/* Button text in French */}
+          </Button>
+        </Link >
+      </div>
       {client && <AddClientForm client={client} onSave={handleSave} />}
     </div>
   );
