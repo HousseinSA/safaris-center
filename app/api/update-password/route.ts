@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/mongodb"; // Adjust the import path to your MongoDB utility file
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route"; // Correct import path
+import { authOptions } from "@/lib/authOptions"; // Import authOptions from lib
 
 export async function POST(request: Request) {
     // @ts-expect-error fix
