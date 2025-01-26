@@ -2,8 +2,7 @@
 import Header from "./components/header";
 import "./styles/globals.css";
 import { Toaster } from "react-hot-toast";
-// import Providers from "./components/Providers.tsx"; // Import the Providers component
-// import LoginModal from "./components/LoginModal";
+import Providers from "./components/Providers.tsx";
 
 // Define metadata
 export const metadata = {
@@ -23,13 +22,11 @@ export default function RootLayout({
         <link rel="icon" href="/safaris-center-icon.ico" />
       </head>
       <body>
-        {/* Wrap your app with the Providers component */}
-        {/* <Providers> */}
+        <Providers>
           <Toaster />
           <Header />
           <main className="mx-auto p-4">{children}</main>
-          {/* <LoginModal /> */}
-        {/* </Providers> */}
+        </Providers>
       </body>
     </html>
   );

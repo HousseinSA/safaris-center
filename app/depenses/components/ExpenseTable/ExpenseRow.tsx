@@ -8,7 +8,7 @@ import { Expense } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import formatDate from "@/lib/formatDate";
 import { paymentMethods } from "@/lib/servicesPaymentData";
-import React from "react";
+import React, { useState } from "react"; // Import useState
 
 interface ExpenseRowProps {
     expense: Expense;
@@ -34,6 +34,17 @@ export const ExpenseRow = ({
     deletingId,
 }: ExpenseRowProps) => {
     const isEditing = editingId === expense._id;
+    const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for submit
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true); // Start loading
+        try {
+            await onSubmit(e); // Call the onSubmit handler
+        } finally {
+            setIsSubmitting(false); // Stop loading
+        }
+    };
 
     return (
         <TableRow key={String(expense._id)}>
@@ -106,8 +117,17 @@ export const ExpenseRow = ({
             <TableCell>
                 {isEditing ? (
                     <div className="flex space-x-2">
-                        <Button onClick={onSubmit} size="sm" className="text-white">
-                            <Check className="h-4 w-4" />
+                        <Button
+                            onClick={handleSubmit}
+                            size="sm"
+                            className="text-white"
+                            disabled={isSubmitting} // Disable button while loading
+                        >
+                            {isSubmitting ? (
+                                <BeatLoader color="#ffffff" size={4} /> // Show spinner while loading
+                            ) : (
+                                <Check className="h-4 w-4" /> // Show check icon when not loading
+                            )}
                         </Button>
                         <Button onClick={onCancelEdit} size="sm" variant="outline">
                             <X className="h-4 w-4" />

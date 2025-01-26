@@ -59,15 +59,24 @@ export const ClientRow = ({
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <div key={index} className="border-b border-primary p-1">
-                     <span className="font-semibold">{service.name}:</span>   {(service.price || 0).toLocaleString()} MRU
+                    <div
+                        key={index}
+                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""
+                            }`}
+                    >
+                        <span className="font-semibold">{service.name}:</span>{" "}
+                        {(service.price || 0).toLocaleString()} MRU
                     </div>
                 ))}
             </TableCell>
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <div key={index} className="border-b border-primary p-1">
+                    <div
+                        key={index}
+                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""
+                            }`}
+                    >
                         {(service.upfrontPayment || 0).toLocaleString()} MRU
                     </div>
                 ))}
