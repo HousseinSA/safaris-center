@@ -1,12 +1,12 @@
-// lib/authOptions.ts
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
 import db from "@/lib/mongodb";
+import { AuthOptions } from "next-auth"; // Import AuthOptions type
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
     // @ts-expect-error fix later
     adapter: MongoDBAdapter(clientPromise),
     providers: [
@@ -38,7 +38,7 @@ export const authOptions = {
         }),
     ],
     session: {
-        strategy: "jwt",
+        strategy: "jwt" as const, // Explicitly type as "jwt"
         maxAge: 12 * 60 * 60, // 12 hours
     },
     callbacks: {

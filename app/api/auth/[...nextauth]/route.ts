@@ -3,7 +3,6 @@ import NextAuth from "next-auth";
 import { authOptions } from "@/lib/authOptions"; // Import authOptions from lib
 
 // Create the NextAuth handler
-// @ts-expect-error fix later 
 const handler = NextAuth(authOptions);
 
 // Export the handler as GET and POST

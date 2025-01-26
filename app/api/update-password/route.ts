@@ -5,7 +5,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions"; // Import authOptions from lib
 
 export async function POST(request: Request) {
-    // @ts-expect-error fix
     const session = await getServerSession(authOptions);
 
     // Ensure the user is authenticated
