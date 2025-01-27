@@ -2,7 +2,7 @@
 import Header from "./components/header";
 import "./styles/globals.css";
 import { Toaster } from "react-hot-toast";
-// import Providers from "./components/Providers.tsx";
+import Providers from "./components/Providers";
 
 // Define metadata
 export const metadata = {
@@ -22,11 +22,11 @@ export default function RootLayout({
         <link rel="icon" href="/safaris-center-icon.ico" />
       </head>
       <body>
-        {/* <Providers> */}
+        <Providers>
           <Toaster />
           <Header />
           <main className="mx-auto p-4">{children}</main>
-        {/* </Providers> */}
+        </Providers>
       </body>
     </html>
   );
