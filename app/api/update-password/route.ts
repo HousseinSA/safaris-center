@@ -1,4 +1,3 @@
-// app/api/update-password/route.ts
 import { NextResponse } from "next/server";
 import db from "@/lib/mongodb"; // Adjust the import path to your MongoDB utility file
 import { getServerSession } from "next-auth";

@@ -1,14 +1,8 @@
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import clientPromise from "@/lib/mongodb";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { JWT } from "next-auth/jwt";
-import { Session } from "next-auth";
 import db from "@/lib/mongodb";
-import { AuthOptions } from "next-auth"; // Import AuthOptions type
+import { AuthOptions } from "next-auth";
 
 export const authOptions: AuthOptions = {
-    // @ts-expect-error fix later
-    adapter: MongoDBAdapter(clientPromise),
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -38,23 +32,21 @@ export const authOptions: AuthOptions = {
         }),
     ],
     session: {
-        strategy: "jwt" as const, // Explicitly type as "jwt"
-        maxAge: 12 * 60 * 60, // 12 hours
+        strategy: "jwt", // Use JWT for sessions
+        maxAge: 12 * 60 * 60, // Session expires after 12 hours
     },
     callbacks: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        async jwt({ token, user }: { token: JWT; user?: any }) {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
             }
             return token;
         },
-        async session({ session, token }: { session: Session; token: JWT }) {
+        async session({ session, token }) {
             // @ts-expect-error fix later
             session.user.id = token.id;
-
             return session;
         },
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET, // Required for JWT encryption
 };

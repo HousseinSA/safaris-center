@@ -1,6 +1,5 @@
 import { MongoClient, ObjectId, WithId, Db, Collection, InsertOneResult } from "mongodb";
-import { Client, Expense } from "@/lib/types"; // Import both Client and Expense types
-
+import { Expense, Client } from '@/lib/types'
 const uri = process.env.MONGODB_LINK!;
 
 if (!uri) {
@@ -27,6 +26,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 const dbName = "your-database-name";
+
 
 // Utility function to get the database instance
 async function getDb(): Promise<Db> {
@@ -70,7 +70,6 @@ const db = {
             { $set: { password: newPassword } } // Store plain text password
         );
     },
-
 
     // ================== Client Operations ==================
     // Fetch all clients
