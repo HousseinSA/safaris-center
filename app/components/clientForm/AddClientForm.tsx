@@ -45,6 +45,9 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
     handleRemoveService,
     handleEditService,
     handleSubmit,
+    isModalOpen,
+    handleConfirmDateChange,
+    handleCancelDateChange,
   } = useClientForm({ client, onSave });
 
   return (
@@ -62,6 +65,9 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
         onDateOfBookingChange={setDateOfBooking}
         paymentMethods={paymentMethods}
         hasServices={services.length > 0}
+        isModalOpen={isModalOpen}
+        onConfirmDateChange={handleConfirmDateChange}
+        onCancelDateChange={handleCancelDateChange}
       />
       {!showServiceInput && (
         <Button

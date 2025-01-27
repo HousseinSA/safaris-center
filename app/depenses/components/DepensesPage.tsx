@@ -149,7 +149,7 @@ export default function DepensesPage() {
     }, 0);
 
     return (
-        <div className="p-6">
+        <div className="md:p-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold mb-4 text-primary">Dépenses</h2>
                 <Link href={'/'}>

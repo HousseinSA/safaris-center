@@ -132,22 +132,20 @@ export default function Header() {
                   </Button>
                 </Link>
 
-                {/* Settings Icon (Mobile) */}
-                {/* <Link href="/register-password" onClick={closeMenu}>
+                <Link href="/register-password" onClick={closeMenu}>
                   <Button className="w-full bg-gray-600 text-white hover:bg-gray-700 flex items-center space-x-2">
                     <Settings className="h-4 w-4" />
                   </Button>
-                </Link> */}
+                </Link>
 
-                {/* Logout Button (Mobile) */}
-                {/* {session && (
+                {session && (
                   <Button
                     onClick={handleLogout}
                     className="w-full bg-red-600 text-white hover:bg-red-700 flex items-center space-x-2"
                   >
                     <LogOut className="h-4 w-4" />
                   </Button>
-                )} */}
+                )}
               </div>
             </motion.div>
           )}

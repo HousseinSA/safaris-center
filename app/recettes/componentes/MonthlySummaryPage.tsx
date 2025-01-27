@@ -127,7 +127,7 @@ export default function MonthlySummaryPage() {
     const shouldShowPagination = availableYears.length > 1 || (availableYears.length === 1 && availableYears[0] !== new Date().getFullYear());
 
     return (
-        <div className="p-6">
+        <div className=" md:p-6">
             <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xl font-bold mb-4 text-primary">Recettes</h2>
                 <Link href={'/'}>

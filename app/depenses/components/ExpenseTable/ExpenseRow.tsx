@@ -8,7 +8,8 @@ import { Expense } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import formatDate from "@/lib/formatDate";
 import { paymentMethods } from "@/lib/servicesPaymentData";
-import React, { useState } from "react"; // Import useState
+import React, { useState } from "react";
+import { ConfirmationModal } from "@/components/ConfirmationModal"; // Import the modal
 
 interface ExpenseRowProps {
     expense: Expense;
@@ -34,16 +35,30 @@ export const ExpenseRow = ({
     deletingId,
 }: ExpenseRowProps) => {
     const isEditing = editingId === expense._id;
-    const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for submit
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true); // Start loading
+        setIsSubmitting(true);
         try {
-            await onSubmit(e); // Call the onSubmit handler
+            await onSubmit(e);
         } finally {
-            setIsSubmitting(false); // Stop loading
+            setIsSubmitting(false);
         }
+    };
+
+    const handleDeleteClick = () => {
+        setIsModalOpen(true); // Open the modal
+    };
+
+    const handleConfirmDelete = () => {
+        setIsModalOpen(false); // Close the modal
+        onDelete(expense._id!.toString()); // Trigger the delete function
+    };
+
+    const handleCancelDelete = () => {
+        setIsModalOpen(false); // Close the modal without deleting
     };
 
     return (
@@ -121,12 +136,12 @@ export const ExpenseRow = ({
                             onClick={handleSubmit}
                             size="sm"
                             className="text-white"
-                            disabled={isSubmitting} // Disable button while loading
+                            disabled={isSubmitting}
                         >
                             {isSubmitting ? (
-                                <BeatLoader color="#ffffff" size={4} /> // Show spinner while loading
+                                <BeatLoader color="#ffffff" size={4} />
                             ) : (
-                                <Check className="h-4 w-4" /> // Show check icon when not loading
+                                <Check className="h-4 w-4" />
                             )}
                         </Button>
                         <Button onClick={onCancelEdit} size="sm" variant="outline">
@@ -139,7 +154,7 @@ export const ExpenseRow = ({
                             <Edit className="h-4 w-4" />
                         </Button>
                         <Button
-                            onClick={() => onDelete(expense._id!.toString())}
+                            onClick={handleDeleteClick} // Open the modal on delete click
                             size="sm"
                             variant="destructive"
                             disabled={deletingId === expense._id}
@@ -153,6 +168,16 @@ export const ExpenseRow = ({
                     </div>
                 )}
             </TableCell>
+
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+                title="Confirmer la suppression"
+                message="Êtes-vous sûr de vouloir supprimer cette dépense ?
+"
+            />
         </TableRow>
     );
 };

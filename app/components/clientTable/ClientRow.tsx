@@ -6,6 +6,8 @@ import { BeatLoader } from "react-spinners";
 import { Client } from "@/lib/types";
 import formatDate from "@/lib/formatDate";
 import { TableCell, TableRow } from "../ui/table";
+import { ConfirmationModal } from "@/components/ConfirmationModal"; // Import the modal
+import { useState } from "react";
 
 interface ClientRowProps {
     client: Client;
@@ -35,6 +37,22 @@ export const ClientRow = ({
     setEditedClient,
 }: ClientRowProps) => {
     const isEditing = editingId === client._id;
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+
+    const handleDeleteClick = () => {
+        setIsModalOpen(true); // Open the modal
+    };
+
+    const handleConfirmDelete = () => {
+        setIsModalOpen(false); // Close the modal
+        if (client._id) {
+            onDelete(client._id.toString()); // Trigger the delete function
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setIsModalOpen(false); // Close the modal without deleting
+    };
 
     return (
         <TableRow key={client._id?.toString()}>
@@ -175,7 +193,7 @@ export const ClientRow = ({
                             <Edit className="h-4 w-4" color="white" />
                         </Button>
                         <Button
-                            onClick={() => client._id && onDelete(client._id.toString())}
+                            onClick={handleDeleteClick} // Open the modal on delete click
                             variant="destructive"
                             size="sm"
                         >
@@ -201,6 +219,15 @@ export const ClientRow = ({
                     </div>
                 )}
             </TableCell>
+
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+                title="Confirmer la suppression"
+                message="Êtes-vous sûr de vouloir supprimer ce client ?"
+            />
         </TableRow>
     );
 };

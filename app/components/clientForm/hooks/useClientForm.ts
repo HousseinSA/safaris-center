@@ -19,6 +19,8 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
     const [responsable, setResponsable] = useState<string>(client?.responsable || "");
     const [dateOfBooking, setDateOfBooking] = useState<string>(format(new Date(), "MM/dd"));
     const [loading, setLoading] = useState<boolean>(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [newDate, setNewDate] = useState<string | null>(null);
 
     const {
         services,
@@ -49,17 +51,32 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         }
     }, [client]);
 
+
     const handleDateChange = (newDate: string) => {
         if (services.length > 0) {
-            const confirmReset = window.confirm("Si vous modifiez la date de réservation, tous les services seront supprimés. Voulez-vous continuer ?");
-            if (confirmReset) {
-                resetServices();
-                setDateOfBooking(newDate);
-            }
+            // Open the confirmation modal
+            setNewDate(newDate); // Store the new date
+            setIsModalOpen(true); // Show the modal
         } else {
+            // If no services are added, update the date directly
             setDateOfBooking(newDate);
         }
+    }
+
+    const handleConfirmDateChange = () => {
+        if (newDate) {
+            resetServices(); // Reset services
+            setDateOfBooking(newDate); // Update the date
+        }
+        setIsModalOpen(false); // Close the modal
     };
+
+    const handleCancelDateChange = () => {
+        setIsModalOpen(false); // Close the modal without doing anything
+    };
+
+
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -168,5 +185,8 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         handleRemoveService,
         handleEditService,
         handleSubmit,
+        isModalOpen,
+        handleConfirmDateChange,
+        handleCancelDateChange,
     };
 };

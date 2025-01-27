@@ -57,7 +57,7 @@ export default function LoginModal() {
                         placeholder="Mot de passe"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full p-2 border rounded mb-4"
+                        className="w-full p-2 border border-primary outline-primary rounded mb-4"
                     />
 
                     {/* Error Message */}
