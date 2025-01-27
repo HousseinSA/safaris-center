@@ -52,7 +52,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                 transition={{ duration: 0.3 }}
                 className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             >
-                <div className="p-6 rounded-lg w-[500px] max-w-full relative">
+                <div className="p-6 rounded-lg w-[500px] h-[624px] max-w-full relative">
                     <button
                         onClick={onClose}
                         className="absolute -top-1 right-2 bg-primary text-white p-1 rounded-full z-50 hover:bg-primary/90 transition-colors"
