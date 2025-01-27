@@ -5,13 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { useState } from "react";
-import { Menu, X, Wallet, TrendingUp, UserPlus, LogOut, Settings } from "lucide-react"; // Import icons
+import {
+  Menu, X, Wallet, TrendingUp, UserPlus,
+  // LogOut,
+  // Settings
+} from "lucide-react"; // Import icons
 import { AnimatePresence, motion } from "framer-motion"; // Import Framer Motion
-import { signOut, useSession } from "next-auth/react"; // Import NextAuth.js functions
+// import { signOut, useSession } from "next-auth/react"; // Import NextAuth.js functions
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage menu visibility
-  const { data: session } = useSession(); // Get the session
+  // const { data: session } = useSession(); // Get the session
 
   // Toggle menu visibility
   const toggleMenu = () => {
@@ -24,9 +28,9 @@ export default function Header() {
   };
 
   // Handle logout
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/login" }); // Redirect to login page after logout
-  };
+  // const handleLogout = () => {
+  //   signOut({ callbackUrl: "/login" }); // Redirect to login page after logout
+  // };
 
   return (
     <header className="bg-white shadow sticky top-0 left-0 z-50">
@@ -78,21 +82,21 @@ export default function Header() {
             </Link>
 
             {/* Settings Icon (Desktop) */}
-            <Link href="/register-password">
+            {/* <Link href="/register-password">
               <Button className="bg-gray-600 text-white hover:bg-gray-700 flex items-center space-x-2">
                 <Settings className="h-4 w-4" />
               </Button>
-            </Link>
+            </Link> */}
 
             {/* Logout Button (Desktop) */}
-            {session && (
+            {/* {session && (
               <Button
                 onClick={handleLogout}
                 className="bg-red-600 text-white hover:bg-red-700 flex items-center space-x-2"
               >
                 <LogOut className="h-4 w-4" />
               </Button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -129,21 +133,21 @@ export default function Header() {
                 </Link>
 
                 {/* Settings Icon (Mobile) */}
-                <Link href="/register-password" onClick={closeMenu}>
+                {/* <Link href="/register-password" onClick={closeMenu}>
                   <Button className="w-full bg-gray-600 text-white hover:bg-gray-700 flex items-center space-x-2">
                     <Settings className="h-4 w-4" />
                   </Button>
-                </Link>
+                </Link> */}
 
                 {/* Logout Button (Mobile) */}
-                {session && (
+                {/* {session && (
                   <Button
                     onClick={handleLogout}
                     className="w-full bg-red-600 text-white hover:bg-red-700 flex items-center space-x-2"
                   >
                     <LogOut className="h-4 w-4" />
                   </Button>
-                )}
+                )} */}
               </div>
             </motion.div>
           )}
