@@ -8,7 +8,7 @@ import jsPDF from "jspdf";
 import { Client } from "@/lib/types";
 import InvoiceHeader from "./InvoiceHeader";
 import ClientInfo from "./ClientInfo";
-import ServicesTable from "./ServicesTable";
+import InvoiceTable from "./InvoiceTable";
 import InvoiceTotal from "./InvoiceTotal";
 
 interface InvoiceProps {
@@ -21,6 +21,9 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
 
     const handleDownload = async () => {
         if (!invoiceRef.current || !userData) return;
+
+        // Wait for the data to be fully rendered
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Adjust the delay as needed
 
         const canvas = await html2canvas(invoiceRef.current, {
             scale: 2,
@@ -35,10 +38,9 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
             hotfixes: ["px_scaling"],
         });
 
-        const imgWidth = 420.94; // A5 width
-        const imgHeight = 595.28; // A5 height
-
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, imgWidth, imgHeight);
+        const imgData = canvas.toDataURL("image/png");
+        // Adjust the dimensions to fit the PDF properly
+        pdf.addImage(imgData, "PNG", 0, 0, 420, 595); // A5 dimensions
         pdf.save(`${userData.name.replace(/\s+/g, "_")}_facture.pdf`);
     };
 
@@ -49,10 +51,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
             }
         };
 
-        // Add event listener when the component mounts
         window.addEventListener("keydown", handleKeyDown);
-
-        // Remove event listener when the component unmounts
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
@@ -71,7 +70,6 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                 transition={{ duration: 0.3 }}
                 className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             >
-                {/* Container for the invoice and X icon */}
                 <div className="relative w-[500px] max-w-full mx-4">
                     <button
                         onClick={onClose}
@@ -80,8 +78,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                         <X className="w-5 h-5" />
                     </button>
 
-                    {/* Invoice content with margins */}
-                    <div ref={invoiceRef} className="bg-white rounded-lg shadow-2xl relative">
+                    <div ref={invoiceRef} className="bg-white rounded-lg shadow-2xl relative" style={{ padding: '20px', width: '100%', height: 'auto' }}>
                         <div
                             className="invoice-bg absolute inset-0 bg-contain bg-center opacity-10 z-0"
                             style={{
@@ -94,10 +91,10 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                             }}
                         />
 
-                        <div className="relative z-10 flex flex-col gap-4 p-6 h-full">
+                        <div className="relative z-10 flex flex-col gap-4">
                             <InvoiceHeader onPrint={() => window.print()} onDownload={handleDownload} />
                             <ClientInfo client={userData} />
-                            <ServicesTable services={userData.services} />
+                            <InvoiceTable services={userData.services} />
                             <InvoiceTotal totalAmount={totalAmount} />
                         </div>
                     </div>
