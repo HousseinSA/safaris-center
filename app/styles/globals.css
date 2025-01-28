@@ -116,4 +116,12 @@ th:hover {
   .print-only {
       display: block !important;
   }
+
+}
+
+.invoice-table-header {
+  position: sticky;
+  top: 0;
+  background-color: #ED7D06; /* Same as your header background */
+  z-index: 1; /* Ensure it stays on top of the other content */
 }
