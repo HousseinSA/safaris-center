@@ -9,7 +9,11 @@ interface InvoiceTableProps {
 
 const InvoiceTable: React.FC<InvoiceTableProps> = ({ services }) => {
     return (
+<<<<<<<< HEAD:app/components/Invoice/InvoiceTable.tsx
         <div className="mt-4 flex-1 overflow-y-auto">
+========
+        <div className="mt-4 flex-1 services-table">
+>>>>>>>> dev:app/components/Invoice/ServicesTable.tsx
             <div className="grid grid-cols-4 gap-2 bg-[#ED7D06] invoice-table-header text-white p-2 text-xs font-semibold">
                 <div>SERVICE</div>
                 <div>SERVICE PRIX</div>
@@ -17,7 +21,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ services }) => {
                 <div>FIN DE SERVICE</div>
             </div>
 
-            <div className="max-h-[300px] overflow-y-auto">
+            <div className=" overflow-y-auto">
                 {services.map((service, index) => (
                     <div key={index} className="grid grid-cols-4 gap-2 py-2 text-xs border-b">
                         <div className="break-words">{service.name}</div>

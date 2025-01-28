@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import html2canvas from "html2canvas";
@@ -33,14 +33,30 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         });
 
         const pdf = new jsPDF({
-            unit: "px",
-            format: [canvas.width, canvas.height],
+            unit: "pt",
+            format: "a5", // A5 format
             hotfixes: ["px_scaling"],
         });
 
         pdf.addImage(canvas, "PNG", 0, 0, canvas.width, canvas.height);
         pdf.save(`${userData.name.replace(/\s+/g, "_")}_facture.pdf`);
     };
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        };
+
+        // Add event listener when the component mounts
+        window.addEventListener("keydown", handleKeyDown);
+
+        // Remove event listener when the component unmounts
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]);
 
     if (!userData) return null;
 
@@ -55,15 +71,17 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                 transition={{ duration: 0.3 }}
                 className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             >
-                <div className="p-6 rounded-lg w-[500px] h-[624px] max-w-full relative">
+                {/* Container for the invoice and X icon */}
+                <div className="relative w-[500px] max-w-full mx-4">
                     <button
                         onClick={onClose}
-                        className="absolute -top-1 right-2 bg-primary text-white p-1 rounded-full z-50 hover:bg-primary/90 transition-colors"
+                        className="absolute -top-10 right-0 md:-right-8 md:top-0 bg-primary text-white p-1 rounded-full z-[100] hover:bg-primary/90 transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
 
-                    <div ref={invoiceRef} className="bg-white rounded-lg shadow-2xl relative h-[600px] overflow-hidden">
+                    {/* Invoice content with margins */}
+                    <div ref={invoiceRef} className="bg-white rounded-lg shadow-2xl relative">
                         <div
                             className="invoice-bg absolute inset-0 bg-contain bg-center opacity-10 z-0"
                             style={{
@@ -89,4 +107,4 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
     );
 };
 
-export default Invoice
+export default Invoice;
