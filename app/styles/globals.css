@@ -93,27 +93,39 @@ th:hover {
   }
 
   .invoice-bg {
-      display: none !important;
+      display: none !important; /* Hide background image in print */
   }
 
   .services-table {
-      overflow: visible !important;
-      width: 100% !important;
+      overflow: visible !important; /* Ensure the table is fully visible */
+      width: 100% !important; /* Full width for the table */
   }
 
   .services-table thead {
-      position: static !important;
+      position: static !important; /* Ensure table headers are not fixed */
   }
 
   .invoice-total {
-      page-break-inside: avoid;
+      page-break-inside: avoid; /* Prevent breaking inside total section */
   }
 
   .print-download-buttons {
-      display: none !important;
+      display: none !important; /* Hide download buttons in print */
   }
 
   .print-only {
-      display: block !important;
+      display: block !important; /* Show only for print */
   }
 } 
+
+  /* Additional styles to ensure proper layout */
+  .invoice-container {
+      width: 100%;
+      height: auto;
+      padding: 20px;
+  }
+
+  /* Ensure all elements take full width */
+  .invoice-header, .client-info, .invoice-total {
+      width: 100%;
+  }
