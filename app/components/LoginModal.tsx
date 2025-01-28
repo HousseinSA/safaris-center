@@ -38,7 +38,7 @@ export default function LoginModal() {
                 transition={{ duration: 0.3 }}
                 className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
             >
-                <div className="bg-white p-8 rounded-lg shadow-md text-center w-[400px] max-w-full">
+                <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-[400px]">
                     {/* Centered Image */}
                     <div className="flex justify-center mb-4">
                         <Image

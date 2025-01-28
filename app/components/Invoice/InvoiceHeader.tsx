@@ -31,13 +31,13 @@ export const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ onPrint, onDownloa
                 <div className="flex gap-2">
                     <button
                         onClick={onPrint}
-                        className="bg-primary text-white p-2 rounded-lg"
+                        className="bg-primary text-white p-2 rounded-lg print-download-buttons"
                     >
                         <Printer className="w-4 h-4" />
                     </button>
                     <button
                         onClick={onDownload}
-                        className="bg-primary text-white p-2 rounded-lg"
+                        className="bg-primary text-white p-2 rounded-lg print-download-buttons"
                     >
                         <Download className="w-4 h-4" />
                     </button>

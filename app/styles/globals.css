@@ -79,30 +79,41 @@ th:hover {
   background-color: inherit !important; /* Ensure no hover effect */
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  
-  }
+@media print {
   body {
-    @apply bg-background text-foreground;
-  
+      margin: 0;
+      padding: 0;
   }
-  
-}
 
-@layer utilities {
-  @media print {
-    .max-h-\[300px\] {
-      max-height: none !important; /* Allow all services to be visible in print */
-    }
+  .invoice-modal {
+      width: 100% !important;
+      height: auto !important;
+      box-shadow: none !important;
+      border: none !important;
+  }
 
-    .overflow-y-auto {
-      overflow: visible !important; /* Disable scrolling in print */
-    }
+  .invoice-bg {
+      display: none !important;
+  }
 
-    .invoice-bg {
-      display: none; /* Hide background image in print */
-    }
+  .services-table {
+      overflow: visible !important;
+      width: 100% !important;
+  }
+
+  .services-table thead {
+      position: static !important;
+  }
+
+  .invoice-total {
+      page-break-inside: avoid;
+  }
+
+  .print-download-buttons {
+      display: none !important;
+  }
+
+  .print-only {
+      display: block !important;
   }
 }
