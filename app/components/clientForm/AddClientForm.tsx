@@ -50,6 +50,8 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
     handleCancelDateChange,
   } = useClientForm({ client, onSave });
 
+
+  const isEditing = !!client;
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <ClientDetailsInput
@@ -68,6 +70,7 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
         isModalOpen={isModalOpen}
         onConfirmDateChange={handleConfirmDateChange}
         onCancelDateChange={handleCancelDateChange}
+        isEditing={isEditing}
       />
       {!showServiceInput && (
         <Button

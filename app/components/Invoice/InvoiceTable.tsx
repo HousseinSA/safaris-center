@@ -1,13 +1,13 @@
 
 import formatDate from "@/lib/formatDate";
 import { Service } from "@/lib/types";
-interface ServicesTableProps {
+interface InvoiceTableProps {
     services: Service[];
 }
 
 
 
-const ServicesTable: React.FC<ServicesTableProps> = ({ services }) => {
+const InvoiceTable: React.FC<InvoiceTableProps> = ({ services }) => {
     return (
         <div className="mt-4 flex-1 overflow-y-auto">
             <div className="grid grid-cols-4 gap-2 bg-[#ED7D06] text-white p-2 text-xs font-semibold">
@@ -31,4 +31,4 @@ const ServicesTable: React.FC<ServicesTableProps> = ({ services }) => {
     );
 };
 
-export default ServicesTable
+export default InvoiceTable

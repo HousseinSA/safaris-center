@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ConfirmationModal } from "@/components/ConfirmationModal"; // Import the modal
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 interface ClientDetailsInputProps {
     name: string;
@@ -15,9 +15,10 @@ interface ClientDetailsInputProps {
     onDateOfBookingChange: (value: string) => void;
     paymentMethods: string[];
     hasServices: boolean;
-    isModalOpen: boolean; // Add this prop
-    onConfirmDateChange: () => void; // Add this prop
-    onCancelDateChange: () => void; // Add this prop
+    isModalOpen: boolean;
+    onConfirmDateChange: () => void;
+    onCancelDateChange: () => void;
+    isEditing: boolean;
 }
 
 export function ClientDetailsInput({
@@ -33,16 +34,30 @@ export function ClientDetailsInput({
     onDateOfBookingChange,
     paymentMethods,
     hasServices,
-    isModalOpen, // Destructure the prop
-    onConfirmDateChange, // Destructure the prop
-    onCancelDateChange, // Destructure the prop
+    isModalOpen,
+    onConfirmDateChange,
+    onCancelDateChange,
+    isEditing
 }: ClientDetailsInputProps) {
+
+    const currentDate = new Date().toISOString().split('T')[0]; // Today's date in YYYY-MM-DD format
+
+    // Format existing booking date for input
+    const existingBookingDate = dateOfBooking
+        ? `${new Date().getFullYear()}-${dateOfBooking.split('/')[0].padStart(2, '0')}-${dateOfBooking.split('/')[1].padStart(2, '0')}`
+        : '';
+
+    // Set min date: if editing, allow the existing date to be selected, even if it's in the past
+    const minDate = isEditing
+        ? existingBookingDate // Allow the original date to be selected
+        : currentDate; // For new bookings, restrict to current date or later
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg">
             {/* First Column */}
             <div className="space-y-4">
                 <div>
-                    <Label className='text-primary' htmlFor="name">Nom de Client </Label>
+                    <Label className='text-primary' htmlFor="name">Nom de Client</Label>
                     <Input
                         id="name"
                         type="text"
@@ -61,22 +76,13 @@ export function ClientDetailsInput({
                     <Input
                         id="dateOfBooking"
                         type="date"
-                        value={
-                            dateOfBooking
-                                ? `${new Date().getFullYear()}-${dateOfBooking.replace("/", "-")}`
-                                : ""
-                        }
-                        min={new Date().toISOString().split("T")[0]}
+                        value={dateOfBooking ? existingBookingDate : ''}
                         onChange={(e) => {
-                            const value = e.target.value;
-                            if (value) {
-                                const [, month, day] = value.split("-");
-                                const formattedDate = `${month}/${day}`;
-                                onDateOfBookingChange(formattedDate);
-                            } else {
-                                onDateOfBookingChange("");
-                            }
+                            const date = new Date(e.target.value);
+                            const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+                            onDateOfBookingChange(formattedDate);
                         }}
+                        min={minDate} // Use the calculated min date
                         required
                     />
                 </div>

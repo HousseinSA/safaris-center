@@ -8,7 +8,7 @@ import jsPDF from "jspdf";
 import { Client } from "@/lib/types";
 import InvoiceHeader from "./InvoiceHeader";
 import ClientInfo from "./ClientInfo";
-import ServicesTable from "./ServicesTable";
+import InvoiceTable from "./InvoiceTable";
 import InvoiceTotal from "./InvoiceTotal";
 
 interface InvoiceProps {
@@ -21,6 +21,9 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
 
     const handleDownload = async () => {
         if (!invoiceRef.current || !userData) return;
+
+        // Wait for the data to be fully rendered
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Adjust delay as needed
 
         const canvas = await html2canvas(invoiceRef.current, {
             scale: 2,
@@ -76,7 +79,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                         <div className="relative z-10 flex flex-col gap-4 p-6 h-full">
                             <InvoiceHeader onPrint={() => window.print()} onDownload={handleDownload} />
                             <ClientInfo client={userData} />
-                            <ServicesTable services={userData.services} />
+                            <InvoiceTable services={userData.services} />
                             <InvoiceTotal totalAmount={totalAmount} />
                         </div>
                     </div>
