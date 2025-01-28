@@ -23,8 +23,12 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         if (!invoiceRef.current || !userData) return;
 
         // Wait for the data to be fully rendered
+<<<<<<< HEAD
         await new Promise((resolve) => setTimeout(resolve, 500)); // Adjust delay as needed
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Adjust the delay as needed
+=======
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+>>>>>>> dev
 
         const canvas = await html2canvas(invoiceRef.current, {
             scale: 2,
