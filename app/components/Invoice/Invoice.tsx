@@ -23,7 +23,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         if (!invoiceRef.current || !userData) return;
 
         // Wait for the data to be fully rendered
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const canvas = await html2canvas(invoiceRef.current, {
             scale: 2,
@@ -40,7 +40,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
 
         const imgData = canvas.toDataURL("image/png");
         // Adjust the dimensions to fit the PDF properly
-        pdf.addImage(imgData, "PNG", 0, 0, 420, 595); // A5 dimensions
+        pdf.addImage(imgData, "PNG", 0, 0, 420, 595); 
         pdf.save(`${userData.name.replace(/\s+/g, "_")}_facture.pdf`);
     };
 

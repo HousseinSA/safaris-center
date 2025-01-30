@@ -80,16 +80,15 @@ th:hover {
 }
 
 @media print {
-  body {
-      margin: 0;
-      padding: 0;
-  }
+ 
 
   .invoice-modal {
       width: 100% !important;
       height: auto !important;
       box-shadow: none !important;
       border: none !important;
+      page-break-inside: avoid; /* Prevent breaking inside total section */
+
   }
 
   .invoice-bg {
@@ -122,6 +121,8 @@ th:hover {
       width: 100%;
       height: auto;
       padding: 20px;
+      page-break-inside: avoid; /* Prevent breaking inside total section */
+
   }
 
   /* Ensure all elements take full width */
