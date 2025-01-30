@@ -9,6 +9,7 @@ import {
     TableCell,
 } from "@/components/ui/table";
 import { ClientRow } from "./ClientRow";
+import React from "react";
 
 interface ClientTableBodyProps {
     groupedClients: { [key: string]: Client[] };
@@ -55,8 +56,8 @@ export const ClientTableBody = ({
             </TableHeader>
 
             <TableBody>
-                {Object.entries(groupedClients).map(([monthYear, clients]) => (
-                    <>
+                {Object.entries(groupedClients).map(([monthYear, clients], index) => (
+                    <React.Fragment key={index}>
                         <TableRow key={monthYear} className="bg-gray-100">
                             <TableCell colSpan={10} className="font-bold text-primary">
                                 {monthYear}
@@ -78,7 +79,7 @@ export const ClientTableBody = ({
                                 setEditedClient={setEditedClient}
                             />
                         ))}
-                    </>
+                    </React.Fragment>
                 ))}
             </TableBody>
         </Table>

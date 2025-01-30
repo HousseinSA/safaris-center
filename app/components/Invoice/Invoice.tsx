@@ -34,7 +34,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
 
         const pdf = new jsPDF({
             unit: "pt",
-            format: "a5", // A5 format
+            format: "a5",
             hotfixes: ["px_scaling"],
         });
 

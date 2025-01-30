@@ -20,17 +20,16 @@ export default function ClientTable() {
   const [showInvoice, setShowInvoice] = useState(false);
   const clientsPerPage = 15;
 
-  // Fetch clients from the API
   const fetchClients = async () => {
+    setLoading(true);
     const response = await fetch("/api/clients");
     const data = await response.json();
     setClients(data);
+    setLoading(false);
   };
-
   useEffect(() => {
     fetchClients();
   }, []);
-
   // Pagination logic
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
@@ -127,6 +126,7 @@ export default function ClientTable() {
       if (response.ok) {
         toast.success("Client supprimé avec succès !");
         await fetchClients();
+
       } else {
         toast.error("Échec de la suppression du client");
       }
@@ -180,7 +180,7 @@ export default function ClientTable() {
             setEditedClient={setEditedClient}
           />
 
-          {clients.length > clientsPerPage && (
+          {!loading && clients.length > clientsPerPage && (
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -193,7 +193,7 @@ export default function ClientTable() {
           )}
         </div>
       ) : (
-        <p className="text-gray-500">Aucun client trouvé.</p>
+        !loading && <p className="text-gray-500">Aucun client trouvé.</p>
       )}
 
       {showInvoice && selectedClient && (

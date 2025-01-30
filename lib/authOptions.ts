@@ -23,7 +23,7 @@ export const authOptions: AuthOptions = {
                     }
 
                     // Return a user object (required by NextAuth.js)
-                    return { id: "single-user" }; // Use the same ID as in your users collection
+                    return { id: "67969735f70844404c19b654" }; // Use the same ID as in your users collection
                 } catch (err) {
                     // @ts-expect-error fix
                     throw new Error(err.message);
