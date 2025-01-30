@@ -15,13 +15,14 @@ export const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ onPrint, onDownloa
                     <p className="font-semibold">Date de facture:</p>
                     <p>{formatDate(new Date().toISOString())}</p>
                 </div>
-                <Image
-                    width={100}
-                    height={100}
-                    src="/safariscenter.png"
-                    alt="Logo"
-                    className="w-20 h-20 mt-2 object-contain"
-                />
+                <div className="relative w-20 h-20 overflow-hidden mt-2"> {/* Smaller logo size */}
+                    <Image
+                        src="/safariscenter.png"
+                        alt="Logo"
+                        layout="fill" // Fill the container
+                        objectFit="contain" // Maintain aspect ratio
+                    />
+                </div>
                 <p><span className="text-[.8rem]">Tél: 27706495</span></p>
                 <p><span className="text-[.8rem]">Nif: 01454958</span></p>
             </div>
