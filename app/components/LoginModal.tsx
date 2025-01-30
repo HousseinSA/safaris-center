@@ -1,4 +1,4 @@
-"use client"; // Mark as a client component
+"use client";
 
 import { signIn } from "next-auth/react";
 import Image from "next/image";
@@ -13,7 +13,12 @@ export default function LoginModal() {
 
     const handleLogin = async () => {
         setError("");
+        if (password.length < 5) {
+            setError("Le mot de passe doit contenir au moins 5 caractères.");
+            return;
+        }
         setLoading(true);
+
 
         const result = await signIn("credentials", {
             password,
@@ -23,10 +28,16 @@ export default function LoginModal() {
         if (result?.error) {
             setError(result.error);
         } else {
-            window.location.href = "/"; // Redirect to homepage after successful login
+            window.location.href = "/";
         }
 
         setLoading(false);
+    };
+
+    const handleKeyDown = (e: { key: string; }) => {
+        if (e.key === "Enter") {
+            handleLogin();
+        }
     };
 
     return (
@@ -38,8 +49,7 @@ export default function LoginModal() {
                 transition={{ duration: 0.3 }}
                 className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
             >
-                <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-[400px]">
-                    {/* Centered Image */}
+                <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-[300] max-h-[300px] overflow-hidden">
                     <div className="flex justify-center mb-4">
                         <Image
                             width={80}
@@ -51,23 +61,21 @@ export default function LoginModal() {
                     </div>
 
 
-                    {/* Password Input */}
                     <input
                         type="password"
                         placeholder="Mot de passe"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full p-2 border border-primary outline-primary rounded mb-4"
+                        onKeyDown={handleKeyDown}
                     />
 
-                    {/* Error Message */}
                     {error && (
                         <p className="text-red-500 mb-4 text-sm">
                             {error}
                         </p>
                     )}
 
-                    {/* Login Button */}
                     <button
                         onClick={handleLogin}
                         disabled={loading}
