@@ -40,8 +40,8 @@ export const ClientTableBody = ({
 }: ClientTableBodyProps) => {
     return (
         <Table>
-            <TableHeader className="bg-primary hover:bg-primary">
-                <TableRow className="text-white">
+            <TableHeader className="bg-primary ">
+                <TableRow className="text-white hover:bg-primary">
                     <TableHead className="text-white">Nom du client</TableHead>
                     <TableHead className="text-white">Services</TableHead>
                     <TableHead className="text-white">Montant avancé</TableHead>

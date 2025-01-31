@@ -72,8 +72,8 @@ export default function EditClientPage() {
 
   return (
     <div >
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold mb-4 text-primary">Modifier le client</h2>
+      <div className="flex justify-between mb-4 items-center">
+        <h2 className="text-xl font-bold  text-primary">Modifier le client</h2>
         <Link href={'/'}>
           <Button
             className="bg-primary text-white hover:bg-primary-dark flex items-center space-x-2"

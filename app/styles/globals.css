@@ -9,6 +9,8 @@ body {
   font-style: normal;
   box-sizing: border-box;
   font-optical-sizing: auto;
+  line-height: 1.2;
+  overflow: visible; 
 }
 
 
@@ -76,57 +78,73 @@ th {
 }
 
 th:hover {
-  background-color: inherit !important; /* Ensure no hover effect */
+  background-color: inherit !important;
 }
 
-@media print {
- 
 
+
+@media print {
   .invoice-modal {
       width: 100% !important;
       height: auto !important;
       box-shadow: none !important;
       border: none !important;
-      page-break-inside: avoid; /* Prevent breaking inside total section */
-
+      page-break-inside: avoid; 
+      margin: 0; 
+      padding: 0; 
+      background: transparent; /* Ensure background is transparent */
   }
 
   .invoice-bg {
-      display: none !important; /* Hide background image in print */
+      display: block !important; /* Ensure the background is shown during print */
+      background-image: url(/safariscenter.png); /* Set the background image */
+      background-size: contain; /* Adjust size as needed */
+      background-position: center; /* Center the background */
+      background-repeat: no-repeat; /* Prevent repeating */
+      opacity: 0.1; /* Adjust opacity for print visibility */
+      position: absolute;
+      inset: 0; /* Cover the entire area */
+      z-index: -1; /* Send it to the back */
   }
 
   .services-table {
-      overflow: visible !important; /* Ensure the table is fully visible */
-      width: 100% !important; /* Full width for the table */
+      overflow: visible !important; 
+      width: 100% !important; 
+      border-collapse: collapse; 
   }
 
   .services-table thead {
-      position: static !important; /* Ensure table headers are not fixed */
+      position: static !important; 
   }
 
   .invoice-total {
-      page-break-inside: avoid; /* Prevent breaking inside total section */
+      page-break-inside: avoid;
   }
 
   .print-download-buttons {
-      display: none !important; /* Hide download buttons in print */
+      display: none !important; 
   }
 
   .print-only {
-      display: block !important; /* Show only for print */
+      display: block !important; 
   }
-} 
 
-  /* Additional styles to ensure proper layout */
   .invoice-container {
       width: 100%;
       height: auto;
-      padding: 20px;
-      page-break-inside: avoid; /* Prevent breaking inside total section */
-
+      padding: 20px; 
+      page-break-inside: avoid; 
+      box-sizing: border-box; 
   }
 
-  /* Ensure all elements take full width */
-  .invoice-header, .client-info, .invoice-total {
+  .invoice-header,
+  .client-info,
+  .invoice-total {
       width: 100%;
+      margin: 0; 
+      padding: 10px 0; 
   }
+}
+.hidden-for-pdf {
+  display: none !important; 
+}

@@ -49,16 +49,16 @@ export const ExpenseRow = ({
     };
 
     const handleDeleteClick = () => {
-        setIsModalOpen(true); // Open the modal
+        setIsModalOpen(true);
     };
 
     const handleConfirmDelete = () => {
-        setIsModalOpen(false); // Close the modal
-        onDelete(expense._id!.toString()); // Trigger the delete function
+        setIsModalOpen(false);
+        onDelete(expense._id!.toString());
     };
 
     const handleCancelDelete = () => {
-        setIsModalOpen(false); // Close the modal without deleting
+        setIsModalOpen(false);
     };
 
     return (
@@ -84,7 +84,7 @@ export const ExpenseRow = ({
                         min="0"
                     />
                 ) : (
-                    `${expense.price} MRU`
+                    `${expense.price.toLocaleString()} MRU`
                 )}
             </TableCell>
             <TableCell>
@@ -154,7 +154,7 @@ export const ExpenseRow = ({
                             <Edit className="h-4 w-4" />
                         </Button>
                         <Button
-                            onClick={handleDeleteClick} // Open the modal on delete click
+                            onClick={handleDeleteClick} 
                             size="sm"
                             variant="destructive"
                             disabled={deletingId === expense._id}

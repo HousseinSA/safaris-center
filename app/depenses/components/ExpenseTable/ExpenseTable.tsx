@@ -30,7 +30,7 @@ export const ExpenseTable = ({
     return (
         <Table>
             <TableHeader className="bg-primary">
-                <TableRow>
+                <TableRow className="text-white hover:bg-primary">
                     <TableHead className="text-white">Nom de la Dépense</TableHead>
                     <TableHead className="text-white"> Dépense Montant</TableHead>
                     <TableHead className="text-white">Responsable</TableHead>

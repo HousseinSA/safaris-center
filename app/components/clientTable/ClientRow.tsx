@@ -211,7 +211,11 @@ export const ClientRow = ({
                             Éditer
                         </Button>
                         <Button
-                            onClick={() => client._id && onCheckout(client._id.toString())}
+                            onClick={() => {
+                                if (client._id) {
+                                    onCheckout(client._id.toString()); // Immediate execution of onCheckout
+                                }
+                            }}
                             size="sm"
                         >
                             <CheckCircle className="h-4 w-4" color="white" />
@@ -219,8 +223,6 @@ export const ClientRow = ({
                     </div>
                 )}
             </TableCell>
-
-            {/* Confirmation Modal */}
             <ConfirmationModal
                 isOpen={isModalOpen}
                 onConfirm={handleConfirmDelete}

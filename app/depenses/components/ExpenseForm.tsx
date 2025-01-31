@@ -56,8 +56,15 @@ export const ExpenseForm = ({ formData, editingId, loading, onSubmit, onInputCha
                             name="responsable"
                             placeholder="Responsable"
                             value={formData.responsable}
-                            onChange={onInputChange}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Allow only letters and spaces
+                                if (/^[a-zA-Z\s]*$/.test(value)) {
+                                    onInputChange(e); // Call the original input change handler
+                                }
+                            }}
                             required
+                            type="text"
                         />
                     </div>
                     <div>

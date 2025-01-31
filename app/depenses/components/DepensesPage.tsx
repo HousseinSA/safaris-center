@@ -150,8 +150,8 @@ export default function DepensesPage() {
 
     return (
         <div className="md:p-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold mb-4 text-primary">Dépenses</h2>
+            <div className="flex justify-between mb-4 items-center">
+                <h2 className="text-xl font-bold  text-primary">Dépenses</h2>
                 <Link href={'/'}>
                     <Button className="bg-primary text-white hover:bg-primary-dark flex items-center space-x-2">
                         <Users className="h-4 w-4" />

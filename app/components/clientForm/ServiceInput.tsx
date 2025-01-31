@@ -113,7 +113,7 @@ export function ServiceInput({
               onStartDateChange("");
             }
           }}
-          min={minDate} // Restrict dates before the reservation date
+          min={minDate} 
           required
         />
       </div>

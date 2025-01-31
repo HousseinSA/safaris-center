@@ -40,17 +40,16 @@ export function ClientDetailsInput({
     isEditing
 }: ClientDetailsInputProps) {
 
-    const currentDate = new Date().toISOString().split('T')[0]; // Today's date in YYYY-MM-DD format
+    const currentDate = new Date().toISOString().split('T')[0];
 
     // Format existing booking date for input
     const existingBookingDate = dateOfBooking
         ? `${new Date().getFullYear()}-${dateOfBooking.split('/')[0].padStart(2, '0')}-${dateOfBooking.split('/')[1].padStart(2, '0')}`
         : '';
 
-    // Set min date: if editing, allow the existing date to be selected, even if it's in the past
     const minDate = isEditing
-        ? existingBookingDate // Allow the original date to be selected
-        : currentDate; // For new bookings, restrict to current date or later
+        ? existingBookingDate
+        : currentDate;
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg">
@@ -92,7 +91,12 @@ export function ClientDetailsInput({
                         id="responsable"
                         type="text"
                         value={responsable}
-                        onChange={(e) => onResponsableChange(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^[a-zA-Z\s]*$/.test(value)) {
+                                onResponsableChange(value);
+                            }
+                        }}
                         required
                     />
                 </div>
@@ -120,9 +124,14 @@ export function ClientDetailsInput({
                     <Label className='text-primary' htmlFor="phoneNumber">Numéro de téléphone</Label>
                     <Input
                         id="phoneNumber"
-                        type="text"
+                        type="tel"
                         value={phoneNumber}
-                        onChange={(e) => onPhoneNumberChange(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d{0,8}$/.test(value)) {
+                                onPhoneNumberChange(value);
+                            }
+                        }}
                         maxLength={8}
                         required
                     />

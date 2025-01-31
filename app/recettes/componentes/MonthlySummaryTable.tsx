@@ -12,7 +12,7 @@ export const MonthlySummaryTable = ({ monthlyData }: MonthlySummaryTableProps) =
 
         <Table>
             <TableHeader className="bg-primary">
-                <TableRow>
+                <TableRow className="text-white hover:bg-primary">
                     <TableHead className="text-white">Mois</TableHead>
                     <TableHead className="text-white">Total Recettes</TableHead>
                     <TableHead className="text-white">Total Dépenses</TableHead>

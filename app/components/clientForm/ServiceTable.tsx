@@ -20,31 +20,28 @@ import toast from "react-hot-toast";
 interface ServiceTableProps {
     services: Service[];
     onEditService: (index: number) => void;
-    onRemoveService: (index: number) => void; // This should only delete the item, no redirection
+    onRemoveService: (index: number) => void;
 }
 
 export function ServiceTable({ services, onEditService, onRemoveService }: ServiceTableProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedServiceIndex, setSelectedServiceIndex] = useState<number | null>(null);
 
-    // Open the modal and set the selected service index
     const handleDeleteClick = (index: number) => {
         setSelectedServiceIndex(index);
         setIsModalOpen(true);
     };
 
-    // Confirm deletion and close the modal
     const handleConfirmDelete = () => {
         if (selectedServiceIndex !== null) {
-            onRemoveService(selectedServiceIndex); // Trigger the delete function
-            setIsModalOpen(false); // Close the modal
-            toast.success("Service deleted successfully!"); // Show success toast message
+            onRemoveService(selectedServiceIndex);
+            setIsModalOpen(false);
+            toast.success("Service deleted successfully!");
         }
     };
 
-    // Close the modal without deleting or performing any other action
     const handleCancelDelete = () => {
-        setIsModalOpen(false); // Just hide the modal
+        setIsModalOpen(false);
     };
 
     return (
@@ -52,7 +49,7 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
             <Label className="text-primary">Services ajoutés</Label>
             <Table>
                 <TableHeader className="bg-primary">
-                    <TableRow>
+                    <TableRow className="hover:bg-primary"  >
                         <TableHead className="text-white">Service</TableHead>
                         <TableHead className="text-white">Montant</TableHead>
                         <TableHead className="text-white">Montant avancé</TableHead>
@@ -101,7 +98,6 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
                 {services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU
             </div>
 
-            {/* Reusable Confirmation Modal */}
             <ConfirmationModal
                 isOpen={isModalOpen}
                 onConfirm={handleConfirmDelete}

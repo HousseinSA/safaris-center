@@ -8,7 +8,7 @@ import {
 export const ClientTableHeader = () => {
   return (
     <TableHeader className="bg-primary">
-      <TableRow className="text-white">
+      <TableRow className="text-white" >
         <TableHead className="text-white">Nom du client</TableHead>
         <TableHead className="text-white">Services</TableHead>
         <TableHead className="text-white">Montant avancé</TableHead>

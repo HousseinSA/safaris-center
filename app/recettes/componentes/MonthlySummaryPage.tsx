@@ -128,8 +128,8 @@ export default function MonthlySummaryPage() {
 
     return (
         <div className=" md:p-6">
-            <div className="flex justify-between items-center mb-2">
-                <h2 className="text-xl font-bold mb-4 text-primary">Recettes</h2>
+            <div className="flex justify-between items-center mb-4 ">
+                <h2 className="text-xl font-bold  text-primary">Recettes</h2>
                 <Link href={'/'}>
                     <Button className="bg-primary text-white hover:bg-primary-dark flex items-center space-x-2">
                         <Users className="h-4 w-4" />
