@@ -11,7 +11,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ services }) => {
     return (
         <div className="mt-4 flex-1 overflow-y-auto">
         <div className="mt-4 flex-1 services-table">
-            <div className="grid grid-cols-4 gap-2 bg-[#ED7D06] invoice-table-header text-white p-2 text-xs font-semibold">
+            <div className="grid grid-cols-4 t-head gap-2 bg-[#ED7D06] t text-white p-2 text-xs font-semibold">
                 <div>SERVICE</div>
                 <div>SERVICE PRIX</div>
                 <div>DÉBUT DE SERVICE</div>

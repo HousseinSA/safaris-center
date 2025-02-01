@@ -4,7 +4,7 @@ interface InvoiceTotalProps {
 
 const InvoiceTotal: React.FC<InvoiceTotalProps> = ({ totalAmount }) => {
     return (
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end invoice-table">
             <div className="flex items-center gap-2">
                 <span className="font-semibold">TOTAL MONTANT:</span>
                 <span className="font-bold">

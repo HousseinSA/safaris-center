@@ -3,11 +3,18 @@ import { Printer, Download } from "lucide-react";
 import formatDate from "@/lib/formatDate";
 
 interface InvoiceHeaderProps {
-    onPrint: () => void;
     onDownload: () => void;
 }
 
-export const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ onPrint, onDownload }) => {
+
+
+export const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ onDownload }) => {
+
+
+    const handlePrint = () => {
+        window.print();
+    };
+
     return (
         <div className="flex justify-between items-start">
             <div>
@@ -31,7 +38,7 @@ export const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ onPrint, onDownloa
                 <h1 className="text-2xl font-bold">FACTURE</h1>
                 <div className="flex gap-2">
                     <button
-                        onClick={onPrint}
+                        onClick={handlePrint}
                         className="bg-primary text-white p-2 rounded-lg print-download-buttons"
                     >
                         <Printer className="w-4 h-4" />

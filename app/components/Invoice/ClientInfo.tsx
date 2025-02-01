@@ -1,3 +1,4 @@
+import React from "react";
 import { Client } from "@/lib/types";
 import formatDate from "@/lib/formatDate";
 

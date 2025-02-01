@@ -27,6 +27,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         }, 200); // Delay closing logic for animation effect
     }, [onClose]);
 
+   
     const handleDownload = async () => {
         if (!invoiceRef.current || !userData) return;
 
@@ -108,7 +109,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
                             />
 
                             <div className="relative z-10 flex flex-col gap-4">
-                                <InvoiceHeader onPrint={() => window.print()} onDownload={handleDownload} />
+                                <InvoiceHeader  onDownload={handleDownload} />
                                 <ClientInfo client={userData} />
                                 <InvoiceTable services={userData.services} />
                                 <InvoiceTotal totalAmount={totalAmount} />
