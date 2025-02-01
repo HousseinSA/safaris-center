@@ -1,21 +1,23 @@
-// middleware.js
-import { getToken } from "next-auth/jwt";
+// middleware.ts (or your specific middleware file)
 import { NextResponse } from "next/server";
-// @ts-expect-error fix later
-export async function middleware(request) {
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+import { NextRequest } from "next/server";
 
-    // Define protected routes
-    const protectedRoutes = ["/", "/client", "/nouveau-client", "/depenses", "/recettes"];
+// Middleware to allow guest access
+export function middleware(request: NextRequest) {
+    // Check if the request is for a protected route
+    const protectedRoutes = ['/recettes', '/depenses', '/nouveau-client']; // Add your protected routes here
 
-    // Check if the requested route is protected
-    if (protectedRoutes.includes(request.nextUrl.pathname)) {
-        // If the user is not authenticated, redirect to the login page
-        if (!token) {
-            return NextResponse.redirect(new URL("/login", request.url));
-        }
+    if (protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
+        // If the guest is trying to access a protected route, allow access
+        // You can also add logic here for redirecting guests
+        return NextResponse.next();
     }
 
-    // Allow the request to proceed
+    // Allow all other requests
     return NextResponse.next();
 }
+
+// Specify which paths the middleware should apply to
+export const config = {
+    matcher: ['/recettes/:path*', '/depenses/:path*', '/nouveau-client/:path*'],
+};

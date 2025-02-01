@@ -42,34 +42,7 @@ async function getCollection<T>(collectionName: string): Promise<Collection<T>> 
     return db.collection<T>(collectionName);
 }
 
-// Utility functions for CRUD operations
 const db = {
-    // ================== User Authentication ==================
-    // Verify user password
-    async verifyUserPassword(password: string): Promise<boolean> {
-        const collection = await getCollection<{ _id: ObjectId; password: string }>("users");
-
-        // Fetch the user (assuming there's only one user for simplicity)
-        const user = await collection.findOne({ _id: new ObjectId("67969735f70844404c19b654") });
-
-        if (!user) {
-            throw new Error("User not found");
-        }
-
-        // Compare plain text passwords
-        return password === user.password;
-    },
-
-    // Update user password (plain text)
-    async updateUserPassword(newPassword: string): Promise<void> {
-        const collection = await getCollection<{ _id: ObjectId; password: string }>("users");
-
-        // Update the password for the user
-        await collection.updateOne(
-            { _id: new ObjectId("67969735f70844404c19b654") }, // Use the same ObjectId
-            { $set: { password: newPassword } } // Store plain text password
-        );
-    },
 
     // ================== Client Operations ==================
     // Fetch all clients
