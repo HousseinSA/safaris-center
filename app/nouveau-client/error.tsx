@@ -27,7 +27,7 @@ const Error: React.FC<ErrorProps> = ({ error, reset }) => {
                 <p className="text-gray-700 mb-6">{message}</p>
                 <button
                     onClick={reset}
-                    className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+                    className="bg-primary text-white font-semibold py-2 px-4 rounded hover:bg-primary-dark transition duration-300"
                 >
                     Réessayer
                 </button>
