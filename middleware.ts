@@ -8,8 +8,6 @@ export function middleware(request: NextRequest) {
     const protectedRoutes = ['/recettes', '/depenses', '/nouveau-client']; // Add your protected routes here
 
     if (protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
-        // If the guest is trying to access a protected route, allow access
-        // You can also add logic here for redirecting guests
         return NextResponse.next();
     }
 
