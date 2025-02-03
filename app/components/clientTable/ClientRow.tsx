@@ -45,7 +45,7 @@ export const ClientRow = ({
     const handleConfirmDelete = () => {
         setIsModalOpen(false);
         if (client._id) {
-            onDelete(client._id.toString()); // Trigger the delete function
+            onDelete(client._id.toString());
         }
     };
 
@@ -53,12 +53,11 @@ export const ClientRow = ({
         setIsModalOpen(false);
     };
 
-    // Calculate total remaining payment based on services
     const totalRemainingPayment = client.services.reduce((sum, service) => {
         if (service.remainingPaymentMethod) {
-            return sum; // Do not add anything as the payment is fulfilled
+            return sum;
         }
-        return sum + service.remainingPayment; // Add up remaining payments
+        return sum + service.remainingPayment;
     }, 0);
 
     return (
@@ -84,7 +83,7 @@ export const ClientRow = ({
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <span key={index} className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}>
+                    <span key={index} className={`block mb-2 ${index < client.services.length - 1 ? "border-b border-primary pb-2" : ""}`}>
                         <span className="font-semibold">{service.name}:</span>{" "}
                         {(service.price || 0).toLocaleString()} MRU
                     </span>
@@ -93,23 +92,18 @@ export const ClientRow = ({
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <span key={index} className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}>
+                    <span key={index} className={`block mb-1 text-center ${index < client.services.length - 1 ? "border-b border-primary pb-1" : ""}`}>
                         {(service.upfrontPayment || 0).toLocaleString()} MRU
                     </span>
                 ))}
             </TableCell>
-
-            <TableCell>
-                {client.services.length > 0 && (
+            <TableCell className="text-center">
+                {client.services.length > 0 ? (
                     <span className="font-semibold text-primary">
-                        {client.services[0].upfrontPaymentMethod}
-                        {client.services[0].remainingPaymentMethod ? (
-                            <>
-                                <span className="text-gray-400 font-bold">/</span>
-                                <span>{client.services[0].remainingPaymentMethod}</span>
-                            </>
-                        ) : null}
+                        {client.services[0].upfrontPaymentMethod || "Aucune"}
                     </span>
+                ) : (
+                    <span className="font-semibold text-primary">Aucune</span>
                 )}
             </TableCell>
 

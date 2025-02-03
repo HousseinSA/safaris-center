@@ -36,18 +36,23 @@ export function ClientDetailsInput({
 
     const currentDate = new Date().toISOString().split('T')[0];
 
-    // Format existing booking date for input
     const existingBookingDate = dateOfBooking
         ? `${new Date().getFullYear()}-${dateOfBooking.split('/')[0].padStart(2, '0')}-${dateOfBooking.split('/')[1].padStart(2, '0')}`
         : '';
 
-    const minDate = isEditing
-        ? existingBookingDate
-        : currentDate;
+    let minDate = currentDate;
+    // let maxDate = ''; 
 
+    if (isEditing && hasServices) {
+        minDate = currentDate;
+        // maxDate = currentDate;
+    } else if (isEditing) {
+        minDate = currentDate;
+    } else {
+        minDate = currentDate;
+    }
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg">
-            {/* First Column */}
             <div className="space-y-4">
                 <div>
                     <Label className='text-primary' htmlFor="name">Nom de Client</Label>
@@ -76,6 +81,7 @@ export function ClientDetailsInput({
                             onDateOfBookingChange(formattedDate);
                         }}
                         min={minDate}
+                        // max={maxDate} // Allow any future date
                         required
                     />
                 </div>

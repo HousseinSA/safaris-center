@@ -51,8 +51,8 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
     }, 0);
 
     return (
-        <div className="bg-white rounded-md shadow-md p-4  mx-auto"> {/* Container styles */}
-            <Label className="text-primary">Services ajoutés</Label>
+        <div className="bg-white rounded-md shadow-md p-4 mx-auto"> {/* Container styles */}
+            <Label className="text-primary text-md">Services Table</Label>
             <Table>
                 <TableHeader className="bg-primary">
                     <TableRow className="hover:bg-primary">
@@ -100,14 +100,16 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
                     ))}
                 </TableBody>
             </Table>
-            <div className="mt-2 text-right">
-                <span className="text-primary font-semibold">Montant restant: </span>
-                {totalRemainingPayment.toLocaleString()} MRU
-                <br />
-                <span className="text-primary font-semibold">Montant total: </span>
-                {services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU
+            <div className="mt-2 max-w-md bg-gray-100 p-4 rounded-md shadow-sm">
+                <div className="flex justify-between">
+                    <span className="text-primary font-semibold">Montant restant:</span>
+                    <span className="font-medium text-gray-600">{totalRemainingPayment.toLocaleString()} MRU</span>
+                </div>
+                <div className="flex justify-between mt-1">
+                    <span className="text-primary font-semibold">Montant total:</span>
+                    <span className="font-medium text-gray-600">{services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU</span>
+                </div>
             </div>
-
             <ConfirmationModal
                 isOpen={isModalOpen}
                 onConfirm={handleConfirmDelete}

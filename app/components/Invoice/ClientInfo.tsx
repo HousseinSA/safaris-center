@@ -7,17 +7,14 @@ interface ClientInfoProps {
 }
 
 const ClientInfo: React.FC<ClientInfoProps> = ({ client }) => {
-    // Extract payment methods from services
-    const paymentMethods = client.services.map(service => {
-        const methods = [];
-        if (service.upfrontPaymentMethod) {
-            methods.push(service.upfrontPaymentMethod);
-        }
-        if (service.remainingPaymentMethod) {
-            methods.push(service.remainingPaymentMethod);
-        }
-        return methods.join(' / ');
-    });
+    // Initialize payment method variable
+    let paymentMethod = "Aucune";
+
+    // Check if there are services and get the upfront payment method from the first service
+    if (client.services.length > 0) {
+        const firstService = client.services[0];
+        paymentMethod = firstService.upfrontPaymentMethod || "Aucune"; // Use upfront payment method or "Aucune"
+    }
 
     return (
         <div className="mt-4 space-y-1">
@@ -26,7 +23,7 @@ const ClientInfo: React.FC<ClientInfoProps> = ({ client }) => {
                 <p><span className="font-semibold">Nom de client:</span> {client.name}</p>
                 <p><span className="font-semibold">Date de réservation:</span> {formatDate(client.dateOfBooking)}</p>
                 <p><span className="font-semibold">Tél:</span> {client.phoneNumber}</p>
-                <p><span className="font-semibold">Méthode de Paiement:</span> {paymentMethods.length > 0 ? paymentMethods.join(', ') : "Aucune"}</p>
+                <p><span className="font-semibold">Méthode de Paiement:</span> {paymentMethod}</p>
             </div>
         </div>
     );

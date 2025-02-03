@@ -2,6 +2,15 @@ import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Service } from "@/lib/types";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ServiceInputProps {
   selectedService: Service;
@@ -74,77 +83,116 @@ export function ServiceInput({
     }
   };
 
+  // Reset the payment methods to the initial option
+  const resetUpfrontPaymentMethod = () => {
+    onUpfrontPaymentMethodChange("");
+  };
+
+  const resetRemainingPaymentMethod = () => {
+    onRemainingPaymentMethodChange("");
+  };
+
   return (
     <div className="grid md:grid-cols-2 gap-4 border p-4 rounded-lg">
+      {/* Service Dropdown */}
       <div>
-        <Label className='text-primary' htmlFor="service">Service</Label>
-        <select
-          id="service"
+        <Label className="text-primary" htmlFor="service">
+          Service
+        </Label>
+        <Select
           value={selectedService.name}
-          onChange={(e) => {
-            const selected = servicesList.find(
-              (service) => service.name === e.target.value
-            );
+          onValueChange={(value) => {
+            const selected = servicesList.find((service) => service.name === value);
             if (selected) onServiceChange(selected);
           }}
-          className="w-full p-2 border rounded"
         >
-          {servicesList.map((service, index) => (
-            <option key={index} value={service.name}>
-              {service.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full rounded-md bg-white text-gray-700 transition-colors duration-300 pr-8">
+            <SelectValue placeholder="Sélectionnez un service" />
+          </SelectTrigger>
+          <SelectContent className="rounded-md">
+            <SelectGroup>
+              {servicesList.map((service, index) => (
+                <SelectItem key={index} value={service.name} className="text-gray-700 hover:bg-primary hover:text-white">
+                  {service.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
 
+      {/* Service Amount Input */}
       <div>
-        <Label className='text-primary' htmlFor="serviceAmount">Montant du service</Label>
+        <Label className="text-primary" htmlFor="serviceAmount">
+          Montant du service
+        </Label>
         <Input
           id="serviceAmount"
           type="number"
           placeholder="Montant"
-          value={serviceAmount === 0 ? "" : serviceAmount} // Show '0' as default
+          value={serviceAmount === 0 ? "" : serviceAmount}
           onChange={handleAmountChange}
           required
           min={0}
         />
       </div>
 
+      {/* Upfront Payment Section */}
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <Label className='text-primary' htmlFor="upfrontPayment">Montant Avancé</Label>
+          <Label className="text-primary" htmlFor="upfrontPayment">
+            Montant Avancé
+          </Label>
           <Input
             id="upfrontPayment"
             type="number"
             placeholder="Paiement initial"
-            value={upfrontPayment === 0 ? "" : upfrontPayment} // Show '0' as default
+            value={upfrontPayment === 0 ? "" : upfrontPayment}
             onChange={handleUpfrontPaymentChange}
             required
             min={0}
           />
         </div>
         <div>
-          <Label className='text-primary' htmlFor="upfrontPaymentMethod">Mode de Paiement Avancé</Label>
-          <select
-            id="upfrontPaymentMethod"
+          <Label className="text-primary" htmlFor="upfrontPaymentMethod">
+            Mode de Paiement Avancé
+          </Label>
+          <Select
             value={upfrontPaymentMethod}
-            onChange={(e) => onUpfrontPaymentMethodChange(e.target.value)}
-            className="w-full p-2 border rounded"
-            required={upfrontPayment > 0} 
+            onValueChange={(value) => {
+              if (value === "reset") {
+                resetUpfrontPaymentMethod();
+              } else {
+                onUpfrontPaymentMethodChange(value);
+              }
+            }}
             disabled={!upfrontPayment}
           >
-            <option value="">Sélectionnez un mode de paiement</option>
-            {paymentMethods.map((method, index) => (
-              <option key={index} value={method}>
-                {method}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full rounded-md bg-white text-gray-700 transition-colors duration-300 pr-8">
+              <SelectValue placeholder="Mode de paiement" />
+            </SelectTrigger>
+            <SelectContent className="rounded-md">
+              <SelectGroup>
+                <SelectLabel className="text-primary">Modes de paiement</SelectLabel>
+                {paymentMethods.map((method, index) => (
+                  <SelectItem key={index} value={method} className="text-gray-700 hover:bg-primary hover:text-white">
+                    {method}
+                  </SelectItem>
+                ))}
+                <SelectItem value="reset" className="text-gray-700 hover:bg-primary hover:text-white">
+                  Réinitialiser
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
+      {/* Service Start Date Input */}
       <div>
-        <Label className='text-primary' htmlFor="serviceStartDate">Date de Début du Service</Label>
+        <Label className="text-primary" htmlFor="serviceStartDate">
+          Date de Début du Service
+        </Label>
         <Input
           id="serviceStartDate"
           type="date"
@@ -165,12 +213,14 @@ export function ServiceInput({
           }}
           min={minDate}
           required
+          className="bg-white text-gray-700"
         />
       </div>
-
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <Label className='text-primary' htmlFor="remainingPayment">Reste à Payer</Label>
+          <Label className="text-primary" htmlFor="remainingPayment">
+            Reste à Payer
+          </Label>
           <Input
             id="remainingPayment"
             type="number"
@@ -180,26 +230,45 @@ export function ServiceInput({
           />
         </div>
         <div>
-          <Label className='text-primary' htmlFor="remainingPaymentMethod">Mode de Paiement Restant</Label>
-          <select
-            id="remainingPaymentMethod"
+          <Label className="text-primary" htmlFor="remainingPaymentMethod">
+            Mode de Paiement Restant
+          </Label>
+          <Select
             value={remainingPaymentMethod}
-            onChange={(e) => handleRemainingPaymentMethodChange(e.target.value)}
-            className="w-full p-2 border rounded"
-            disabled={upfrontPayment <= 0 || upfrontPayment === serviceAmount} // Disable if upfront payment does not exist
+            onValueChange={(value) => {
+              if (value === "reset") {
+                resetRemainingPaymentMethod();
+              } else {
+                handleRemainingPaymentMethodChange(value);
+              }
+            }}
+            disabled={upfrontPayment <= 0 || upfrontPayment >= serviceAmount}
           >
-            <option value="">Sélectionnez un mode de paiement</option>
-            {paymentMethods.map((method, index) => (
-              <option key={index} value={method}>
-                {method}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full rounded-md bg-white text-gray-700 transition-colors duration-300 pr-8">
+              <SelectValue placeholder="Mode de paiement" />
+            </SelectTrigger>
+            <SelectContent className="rounded-md">
+              <SelectGroup>
+                <SelectLabel className="text-primary">Modes de paiement</SelectLabel>
+                {paymentMethods.map((method, index) => (
+                  <SelectItem key={index} value={method} className="text-gray-700 hover:bg-primary hover:text-white">
+                    {method}
+                  </SelectItem>
+                ))}
+                <SelectItem value="reset" className="text-gray-700 hover:bg-primary hover:text-white">
+                  Réinitialiser
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
+      {/* Service Duration Input */}
       <div>
-        <Label className='text-primary' htmlFor="serviceDuration">Durée du Service (Heures)</Label>
+        <Label className="text-primary" htmlFor="serviceDuration">
+          Durée du Service (Heures)
+        </Label>
         <Input
           id="serviceDuration"
           type="number"
