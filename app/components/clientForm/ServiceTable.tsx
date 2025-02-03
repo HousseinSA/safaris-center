@@ -51,7 +51,7 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
     }, 0);
 
     return (
-        <div className="bg-white rounded-md shadow-md p-4 mx-auto"> {/* Container styles */}
+        <div className="bg-white rounded-md shadow-md md:p-4 mx-auto"> {/* Container styles */}
             <Label className="text-primary text-md">Services Table</Label>
             <Table>
                 <TableHeader className="bg-primary">
@@ -79,7 +79,7 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
                                 {service.remainingPayment.toLocaleString()} MRU
                                 <div className="text-xs font-bold text-primary">{service.remainingPaymentMethod || ""}</div>
                             </TableCell>
-                            <TableCell className="flex justify-center">
+                            <TableCell className="text-center">
                                 <span className={`${service.remainingPaymentMethod || service.upfrontPayment === service.price ? "bg-green-500 text-xs text-white py-2 px-8 rounded-xl" : "bg-gray-500 text-xs text-white py-2 px-8 rounded-xl"}`}>
                                     {service.remainingPaymentMethod || service.upfrontPayment === service.price ? "Payé" : "En Attente"}
                                 </span>
