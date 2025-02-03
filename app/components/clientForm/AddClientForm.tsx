@@ -1,4 +1,3 @@
-'use client'
 import { Button } from "@/components/ui/button";
 import { BeatLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +8,7 @@ import { useClientForm } from "./hooks/useClientForm";
 import { paymentMethods, servicesList } from "@/lib/servicesPaymentData";
 import { Client } from "@/lib/types";
 import { Plus, Save, Undo2 } from "lucide-react";
+
 interface AddClientFormProps {
   client?: Client;
   onSave?: (client: Client) => void;
@@ -18,8 +18,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
   const {
     name,
     setName,
-    paymentMethod,
-    setPaymentMethod,
     phoneNumber,
     setPhoneNumber,
     responsable,
@@ -48,24 +46,38 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
     isModalOpen,
     handleConfirmDateChange,
     handleCancelDateChange,
+    upfrontPaymentMethod,
+    setUpfrontPaymentMethod,
+    remainingPaymentMethod, // Add this line
+    setRemainingPaymentMethod, // Add this line
+    completePayment, // Pass completePayment
   } = useClientForm({ client, onSave });
 
-
   const isEditing = !!client;
+
+  const handleCancelServiceInput = () => {
+    setSelectedService(servicesList[0]);
+    setServiceAmount(servicesList[0].price);
+    setUpfrontPayment(0);
+    setServiceDuration(1);
+    setServiceStartDate(dateOfBooking);
+    setUpfrontPaymentMethod("");
+    setRemainingPaymentMethod('')
+    setShowServiceInput(false);
+  };
+
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <ClientDetailsInput
         name={name}
         phoneNumber={phoneNumber}
         responsable={responsable}
-        paymentMethod={paymentMethod}
         dateOfBooking={dateOfBooking}
         onNameChange={setName}
         onPhoneNumberChange={setPhoneNumber}
         onResponsableChange={setResponsable}
-        onPaymentMethodChange={setPaymentMethod}
         onDateOfBookingChange={setDateOfBooking}
-        paymentMethods={paymentMethods}
         hasServices={services.length > 0}
         isModalOpen={isModalOpen}
         onConfirmDateChange={handleConfirmDateChange}
@@ -79,7 +91,6 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
           className="text-white"
         >
           <Plus className="h-4 w-4" />
-
           Ajouter un service
         </Button>
       )}
@@ -105,6 +116,12 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
               onStartDateChange={setServiceStartDate}
               servicesList={servicesList}
               dateOfBooking={dateOfBooking}
+              paymentMethods={paymentMethods}
+              upfrontPaymentMethod={upfrontPaymentMethod}
+              remainingPaymentMethod={remainingPaymentMethod} // Pass this prop
+              onUpfrontPaymentMethodChange={setUpfrontPaymentMethod}
+              onRemainingPaymentMethodChange={setRemainingPaymentMethod}
+              completePayment={completePayment} // Pass completePayment prop
             />
             <Button
               type="button"
@@ -116,13 +133,16 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
             </Button>
             <Button
               type="button"
-              onClick={() => setShowServiceInput(false)}
+              onClick={handleCancelServiceInput}
               className="text-white mt-4 ml-2"
             >
               <Undo2 className="h-4 w-4" />
               Annuler
             </Button>
           </motion.div>
+
+
+
         )}
       </AnimatePresence>
       {services.length > 0 && (

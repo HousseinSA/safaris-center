@@ -32,7 +32,7 @@ export const ExpenseGroup = ({
     return (
         <>
             <TableRow className="bg-gray-100">
-                <TableCell colSpan={6} className="font-bold text-primary">
+                <TableCell colSpan={6} className="font-bold text-primary capitalize">
                     {monthYear}
                 </TableCell>
             </TableRow>

@@ -6,23 +6,20 @@ import { servicesList } from "@/lib/servicesPaymentData";
 
 export const useService = (initialServices: Service[] = [], initialDateOfBooking: string) => {
     const [services, setServices] = useState<Service[]>(initialServices);
+    const [serviceDuration, setServiceDuration] = useState<number>(1);
+    const [serviceStartDate, setServiceStartDate] = useState<string>(initialDateOfBooking);
+    const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
+    const [showServiceInput, setShowServiceInput] = useState<boolean>(false);
     const [selectedService, setSelectedService] = useState<Service>(servicesList[0]);
     const [serviceAmount, setServiceAmount] = useState<number>(selectedService.price);
     const [upfrontPayment, setUpfrontPayment] = useState<number>(0);
-    const [serviceDuration, setServiceDuration] = useState<number>(1); // Duration in hours
-    const [serviceStartDate, setServiceStartDate] = useState<string>(initialDateOfBooking); // Default to reservation date
-    const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
-    const [showServiceInput, setShowServiceInput] = useState<boolean>(false);
-
-    // Function to reset all services
+    const [upfrontPaymentMethod, setUpfrontPaymentMethod] = useState<string>("");
+    const [remainingPaymentMethod, setRemainingPaymentMethod] = useState<string>("")
     const resetServices = () => {
-        setServices([]); // Clear all services
-        setShowServiceInput(false); // Hide the service input form
+        setServices([]);
+        setShowServiceInput(false);
     };
 
-    // Function to validate the service
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const validateService = (dateOfBooking: string): boolean => {
         if (serviceAmount <= 0) {
             toast.error("Veuillez entrer un montant valide pour le service.");
@@ -42,35 +39,41 @@ export const useService = (initialServices: Service[] = [], initialDateOfBooking
         return true;
     };
 
-    // Function to handle adding or modifying a service
     const handleAddOrModifyService = (dateOfBooking: string) => {
+        // Validate service fields
         if (!validateService(dateOfBooking)) return;
 
-        // Check if the service already exists (only if not editing)
-        if (editingServiceIndex === null) {
-            const isServiceAlreadyAdded = services.some(
-                (service) => service.name === selectedService.name
-            );
-
-            if (isServiceAlreadyAdded) {
-                toast.error("Ce service a déjà été ajouté.");
-                return;
-            }
+        // Check upfront payment method when adding or modifying a service
+        if (upfrontPayment > 0 && !upfrontPaymentMethod) {
+            toast.error("Veuillez sélectionner un mode de paiement pour le montant avancé.");
+            return; // Stop the function if payment method is not selected
         }
 
         const [startMonth, startDay] = serviceStartDate.split("/");
         const startDate = new Date(new Date().getFullYear(), parseInt(startMonth) - 1, parseInt(startDay), new Date().getHours(), new Date().getMinutes());
         const endDate = new Date(startDate.getTime() + serviceDuration * 60 * 60 * 1000);
 
-        const newService = {
+        const newService: Service = {
             name: selectedService.name,
             price: serviceAmount,
             upfrontPayment: upfrontPayment,
-            remainingPayment: serviceAmount - upfrontPayment,
+            remainingPayment: Math.max(0, serviceAmount - upfrontPayment),
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
+            upfrontPaymentMethod: upfrontPayment > 0 ? upfrontPaymentMethod : "",
+            remainingPaymentMethod: remainingPaymentMethod || "", // Save the selected method
         };
 
+        // Check for duplicates only when adding a new service
+        if (editingServiceIndex === null) {
+            const serviceExists = services.some(service => service.name === newService.name);
+            if (serviceExists) {
+                toast.error(`Le service "${newService.name}" existe déjà.`);
+                return;
+            }
+        }
+
+        // Add or modify the service in the state
         if (editingServiceIndex !== null) {
             const updatedServices = [...services];
             updatedServices[editingServiceIndex] = newService;
@@ -82,21 +85,26 @@ export const useService = (initialServices: Service[] = [], initialDateOfBooking
             toast.success("Service ajouté avec succès !");
         }
 
-        // Reset form fields
-        setServiceAmount(selectedService.price);
-        setUpfrontPayment(0);
-        setServiceDuration(1);
-        setServiceStartDate(dateOfBooking); // Reset to the reservation date
+        // Reset form fields and selected service to initial state
+        resetServiceForm();
         setShowServiceInput(false);
     };
 
-    // Function to handle removing a service
+    const resetServiceForm = () => {
+        setSelectedService(servicesList[0]); // Reset to the initial selected service
+        setServiceAmount(servicesList[0].price);
+        setUpfrontPayment(0);
+        setServiceDuration(1);
+        setServiceStartDate(""); // Or set to initial booking date
+        setUpfrontPaymentMethod("");
+        setRemainingPaymentMethod(""); // Reset remaining payment method
+    };
+
     const handleRemoveService = (index: number) => {
         const updatedServices = services.filter((_, i) => i !== index);
         setServices(updatedServices);
     };
 
-    // Function to handle editing a service
     const handleEditService = (index: number) => {
         const service = services[index];
         setSelectedService(servicesList.find((s) => s.name === service.name) || servicesList[0]);
@@ -104,8 +112,23 @@ export const useService = (initialServices: Service[] = [], initialDateOfBooking
         setUpfrontPayment(service.upfrontPayment);
         setServiceDuration(Math.round((new Date(service.endDate).getTime() - new Date(service.startDate).getTime()) / (1000 * 60 * 60)));
         setServiceStartDate(format(new Date(service.startDate), "MM/dd"));
+        setUpfrontPaymentMethod(service.upfrontPaymentMethod || "");
+        setRemainingPaymentMethod(service.remainingPaymentMethod || "");
         setEditingServiceIndex(index);
         setShowServiceInput(true);
+    };
+
+    const completePayment = (name: string) => {
+        const updatedServices = services.map(service => {
+            if (service.name === name) {
+                // If a payment method is set, mark the service as paid
+                if (service.remainingPaymentMethod) {
+                    // toast.success(`Le service "${name}" est maintenant marqué comme payé.`);
+                }
+            }
+            return service;
+        });
+        setServices(updatedServices);
     };
 
     return {
@@ -127,5 +150,10 @@ export const useService = (initialServices: Service[] = [], initialDateOfBooking
         handleRemoveService,
         handleEditService,
         resetServices,
-    };
+        completePayment,
+        upfrontPaymentMethod,
+        setUpfrontPaymentMethod,
+        remainingPaymentMethod, // Ensure this is returned
+        setRemainingPaymentMethod, // Ensure this is returned
+    }
 };

@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
-import { Client, } from "@/lib/types";
-import { paymentMethods, } from "@/lib/servicesPaymentData";
+import { Client } from "@/lib/types";
 import { useService } from "./useService";
 
 interface UseClientFormProps {
@@ -14,7 +13,6 @@ interface UseClientFormProps {
 export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
     const router = useRouter();
     const [name, setName] = useState<string>(client?.name || "");
-    const [paymentMethod, setPaymentMethod] = useState<string>(client?.paymentMethod || paymentMethods[0]);
     const [phoneNumber, setPhoneNumber] = useState<string>(client?.phoneNumber || "");
     const [responsable, setResponsable] = useState<string>(client?.responsable || "");
     const [dateOfBooking, setDateOfBooking] = useState<string>(format(new Date(), "MM/dd"));
@@ -41,42 +39,39 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         handleRemoveService,
         handleEditService,
         resetServices,
+        upfrontPaymentMethod,
+        setUpfrontPaymentMethod,
+        remainingPaymentMethod,
+        setRemainingPaymentMethod,
+        completePayment, 
     } = useService(client?.services || [], dateOfBooking);
 
     useEffect(() => {
         if (client) {
             setDateOfBooking(client.dateOfBooking ? format(new Date(client.dateOfBooking), "MM/dd") : format(new Date(), "MM/dd"));
-        } else {
-            setDateOfBooking(format(new Date(), "MM/dd"));
         }
     }, [client]);
 
-
     const handleDateChange = (newDate: string) => {
         if (services.length > 0) {
-            // Open the confirmation modal
-            setNewDate(newDate); // Store the new date
-            setIsModalOpen(true); // Show the modal
+            setNewDate(newDate);
+            setIsModalOpen(true);
         } else {
-            // If no services are added, update the date directly
             setDateOfBooking(newDate);
         }
-    }
+    };
 
     const handleConfirmDateChange = () => {
         if (newDate) {
-            resetServices(); // Reset services
-            setDateOfBooking(newDate); // Update the date
+            resetServices();
+            setDateOfBooking(newDate);
         }
-        setIsModalOpen(false); // Close the modal
+        setIsModalOpen(false);
     };
 
     const handleCancelDateChange = () => {
-        setIsModalOpen(false); // Close the modal without doing anything
+        setIsModalOpen(false);
     };
-
-
-
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,9 +82,9 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         }
 
         const totalPrice = services.reduce((sum, service) => sum + service.price, 0);
-        const remainingTotal = services.reduce((sum, service) => sum + service.remainingPayment, 0);
+        const remainingTotal = services.reduce((sum, service) => sum + (service.remainingPayment || 0), 0);
 
-        if (!name || !paymentMethod || !phoneNumber || !responsable || !dateOfBooking || !serviceStartDate) {
+        if (!name || !phoneNumber || !responsable || !dateOfBooking) {
             toast.error("Veuillez remplir tous les champs correctement.");
             return;
         }
@@ -107,15 +102,17 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         }
 
         const [bookingMonth, bookingDay] = dateOfBooking.split("/");
-        const bookingDate = new Date(new Date().getFullYear(), parseInt(bookingMonth) - 1, parseInt(bookingDay), new Date().getHours(), new Date().getMinutes());
+        const bookingDate = new Date(new Date().getFullYear(), parseInt(bookingMonth) - 1, parseInt(bookingDay));
+
         const newClient: Client = {
             name,
             services: services.map(service => ({
                 ...service,
                 startDate: new Date(service.startDate).toISOString(),
                 endDate: new Date(service.endDate).toISOString(),
+                upfrontPaymentMethod: service.upfrontPaymentMethod,
+                remainingPaymentMethod: service.remainingPaymentMethod,
             })),
-            paymentMethod,
             phoneNumber,
             responsable,
             dateOfBooking: bookingDate.toISOString(),
@@ -145,8 +142,6 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
                 } else {
                     toast.error("Échec de l'enregistrement du client.");
                 }
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
                 toast.error("Échec de l'enregistrement du client.");
             } finally {
@@ -158,8 +153,6 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
     return {
         name,
         setName,
-        paymentMethod,
-        setPaymentMethod,
         phoneNumber,
         setPhoneNumber,
         responsable,
@@ -188,5 +181,10 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         isModalOpen,
         handleConfirmDateChange,
         handleCancelDateChange,
+        upfrontPaymentMethod,
+        setUpfrontPaymentMethod,
+        remainingPaymentMethod,
+        setRemainingPaymentMethod,
+        completePayment, // Add this line
     };
 };

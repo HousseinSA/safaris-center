@@ -6,7 +6,7 @@ import { BeatLoader } from "react-spinners";
 import { Client } from "@/lib/types";
 import formatDate from "@/lib/formatDate";
 import { TableCell, TableRow } from "../ui/table";
-import { ConfirmationModal } from "@/components/ConfirmationModal"; // Import the modal
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { useState } from "react";
 
 interface ClientRowProps {
@@ -54,6 +54,14 @@ export const ClientRow = ({
         setIsModalOpen(false); // Close the modal without deleting
     };
 
+    // Calculate total remaining payment based on services
+    const totalRemainingPayment = client.services.reduce((sum, service) => {
+        if (service.remainingPaymentMethod) {
+            return sum; // Do not add anything as the payment is fulfilled
+        }
+        return sum + service.remainingPayment; // Add up remaining payments
+    }, 0);
+
     return (
         <TableRow key={client._id?.toString()}>
             <TableCell>
@@ -79,8 +87,7 @@ export const ClientRow = ({
                 {client.services.map((service, index) => (
                     <div
                         key={index}
-                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""
-                            }`}
+                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}
                     >
                         <span className="font-semibold">{service.name}:</span>{" "}
                         {(service.price || 0).toLocaleString()} MRU
@@ -92,8 +99,7 @@ export const ClientRow = ({
                 {client.services.map((service, index) => (
                     <div
                         key={index}
-                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""
-                            }`}
+                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}
                     >
                         {(service.upfrontPayment || 0).toLocaleString()} MRU
                     </div>
@@ -101,26 +107,20 @@ export const ClientRow = ({
             </TableCell>
 
             <TableCell>
-                {isEditing ? (
-                    <select
-                        value={editedClient?.paymentMethod || ""}
-                        onChange={(e) =>
-                            setEditedClient({
-                                ...editedClient!,
-                                paymentMethod: e.target.value,
-                            })
-                        }
-                        className="w-full p-2 border rounded"
-                    >
-                        <option value="Cash">Cash</option>
-                        <option value="Bankily">Bankily</option>
-                        <option value="Masrivi">Masrivi</option>
-                        <option value="Sedad">Sedad</option>
-                        <option value="Click">Click</option>
-                    </select>
-                ) : (
-                    client.paymentMethod
-                )}
+                {client.services.map((service, index) => {
+                    const isFullPayment = service.upfrontPayment >= service.price;
+                    return (
+                        <div key={index}>
+                            {isFullPayment ? (
+                                <span className="font-semibold text-primary">{service.upfrontPaymentMethod}</span>
+                            ) : (
+                                <span className="font-semibold text-primary">
+                                    {service.upfrontPaymentMethod} <span className="text-gray-400 font-bold">/</span>  {service.remainingPaymentMethod || "N/A"}
+                                </span>
+                            )}
+                        </div>
+                    );
+                })}
             </TableCell>
 
             <TableCell>
@@ -162,7 +162,7 @@ export const ClientRow = ({
             </TableCell>
 
             <TableCell>{formatDate(client.dateOfBooking)}</TableCell>
-            <TableCell>{(client.remainingTotal || 0).toLocaleString()} MRU</TableCell>
+            <TableCell>{totalRemainingPayment.toLocaleString()} MRU</TableCell>
             <TableCell>{(client.totalPrice || 0).toLocaleString()} MRU</TableCell>
 
             <TableCell>
@@ -180,7 +180,7 @@ export const ClientRow = ({
                             )}
                         </Button>
                         <Button
-                            onClick={() => onEdit(null)} // Pass null to exit edit mode
+                            onClick={() => onEdit(null)}
                             variant="outline"
                             size="sm"
                         >
@@ -193,7 +193,14 @@ export const ClientRow = ({
                             <Edit className="h-4 w-4" color="white" />
                         </Button>
                         <Button
-                            onClick={handleDeleteClick} // Open the modal on delete click
+                            className="text-white"
+                            onClick={() => client._id && onEditClientPage(client._id.toString())}
+                            size="sm"
+                        >
+                            Éditer
+                        </Button>
+                        <Button
+                            onClick={handleDeleteClick}
                             variant="destructive"
                             size="sm"
                         >
@@ -204,16 +211,9 @@ export const ClientRow = ({
                             )}
                         </Button>
                         <Button
-                            className="text-white"
-                            onClick={() => client._id && onEditClientPage(client._id.toString())}
-                            size="sm"
-                        >
-                            Éditer
-                        </Button>
-                        <Button
                             onClick={() => {
                                 if (client._id) {
-                                    onCheckout(client._id.toString()); // Immediate execution of onCheckout
+                                    onCheckout(client._id.toString());
                                 }
                             }}
                             size="sm"

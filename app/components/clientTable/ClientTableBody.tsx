@@ -59,7 +59,7 @@ export const ClientTableBody = ({
                 {Object.entries(groupedClients).map(([monthYear, clients], index) => (
                     <React.Fragment key={index}>
                         <TableRow key={monthYear} className="bg-gray-100">
-                            <TableCell colSpan={10} className="font-bold text-primary">
+                            <TableCell colSpan={10} className="font-bold text-primary capitalize">
                                 {monthYear}
                             </TableCell>
                         </TableRow>

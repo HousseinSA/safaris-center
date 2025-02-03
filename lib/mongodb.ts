@@ -87,7 +87,7 @@ const db = {
     // Create a new client
     async createClient(clientData: Omit<Client, "_id">): Promise<WithId<Client>> {
         const collection = await getCollection<Client>("clients");
-        const result: InsertOneResult<Client> = await collection.insertOne(clientData as Client);
+        const result: InsertOneResult<Client> = await collection.insertOne(clientData);
         if (!result.acknowledged) {
             throw new Error("Failed to create client");
         }
