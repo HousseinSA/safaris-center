@@ -1,4 +1,3 @@
-"use client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Check, X, CheckCircle } from "lucide-react";
@@ -40,18 +39,18 @@ export const ClientRow = ({
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
 
     const handleDeleteClick = () => {
-        setIsModalOpen(true); // Open the modal
+        setIsModalOpen(true);
     };
 
     const handleConfirmDelete = () => {
-        setIsModalOpen(false); // Close the modal
+        setIsModalOpen(false);
         if (client._id) {
             onDelete(client._id.toString()); // Trigger the delete function
         }
     };
 
     const handleCancelDelete = () => {
-        setIsModalOpen(false); // Close the modal without deleting
+        setIsModalOpen(false);
     };
 
     // Calculate total remaining payment based on services
@@ -85,42 +84,33 @@ export const ClientRow = ({
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <div
-                        key={index}
-                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}
-                    >
+                    <span key={index} className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}>
                         <span className="font-semibold">{service.name}:</span>{" "}
                         {(service.price || 0).toLocaleString()} MRU
-                    </div>
+                    </span>
                 ))}
             </TableCell>
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <div
-                        key={index}
-                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}
-                    >
+                    <span key={index} className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""}`}>
                         {(service.upfrontPayment || 0).toLocaleString()} MRU
-                    </div>
+                    </span>
                 ))}
             </TableCell>
 
             <TableCell>
-                {client.services.map((service, index) => {
-                    const isFullPayment = service.upfrontPayment >= service.price;
-                    return (
-                        <div key={index}>
-                            {isFullPayment ? (
-                                <span className="font-semibold text-primary">{service.upfrontPaymentMethod}</span>
-                            ) : (
-                                <span className="font-semibold text-primary">
-                                    {service.upfrontPaymentMethod} <span className="text-gray-400 font-bold">/</span>  {service.remainingPaymentMethod || "N/A"}
-                                </span>
-                            )}
-                        </div>
-                    );
-                })}
+                {client.services.length > 0 && (
+                    <span className="font-semibold text-primary">
+                        {client.services[0].upfrontPaymentMethod}
+                        {client.services[0].remainingPaymentMethod ? (
+                            <>
+                                <span className="text-gray-400 font-bold">/</span>
+                                <span>{client.services[0].remainingPaymentMethod}</span>
+                            </>
+                        ) : null}
+                    </span>
+                )}
             </TableCell>
 
             <TableCell>

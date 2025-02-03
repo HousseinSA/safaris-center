@@ -130,7 +130,7 @@ export function ServiceInput({
             value={upfrontPaymentMethod}
             onChange={(e) => onUpfrontPaymentMethodChange(e.target.value)}
             className="w-full p-2 border rounded"
-            required={upfrontPayment > 0} // Only required if upfront payment is greater than 0
+            required={upfrontPayment > 0} 
             disabled={!upfrontPayment}
           >
             <option value="">Sélectionnez un mode de paiement</option>
@@ -186,7 +186,7 @@ export function ServiceInput({
             value={remainingPaymentMethod}
             onChange={(e) => handleRemainingPaymentMethodChange(e.target.value)}
             className="w-full p-2 border rounded"
-            disabled={upfrontPayment <= 0} // Disable if upfront payment does not exist
+            disabled={upfrontPayment <= 0 || upfrontPayment === serviceAmount} // Disable if upfront payment does not exist
           >
             <option value="">Sélectionnez un mode de paiement</option>
             {paymentMethods.map((method, index) => (
