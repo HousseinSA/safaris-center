@@ -43,7 +43,7 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         setUpfrontPaymentMethod,
         remainingPaymentMethod,
         setRemainingPaymentMethod,
-        completePayment, 
+        completePayment,
     } = useService(client?.services || [], dateOfBooking);
 
     useEffect(() => {
@@ -142,6 +142,8 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
                 } else {
                     toast.error("Échec de l'enregistrement du client.");
                 }
+
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
                 toast.error("Échec de l'enregistrement du client.");
             } finally {

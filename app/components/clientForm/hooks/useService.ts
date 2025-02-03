@@ -20,6 +20,7 @@ export const useService = (initialServices: Service[] = [], initialDateOfBooking
         setShowServiceInput(false);
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const validateService = (dateOfBooking: string): boolean => {
         if (serviceAmount <= 0) {
             toast.error("Veuillez entrer un montant valide pour le service.");
