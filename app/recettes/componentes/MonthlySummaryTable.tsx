@@ -23,7 +23,6 @@ export const MonthlySummaryTable = ({ monthlyData }: MonthlySummaryTableProps) =
                 {monthlyData.map((data, index) => (
                     <TableRow key={index}>
                         <TableCell className="text-primary bg-gray-100 capitalize">{data.month}</TableCell>
-                        <TableCell className=" bg-gray-200" > <span className="capitalized text-primary font-semibold capitalize">{data.month}</span></TableCell>
                         <TableCell>{data.totalServices.toLocaleString()} MRU</TableCell>
                         <TableCell>{data.totalExpenses.toLocaleString()} MRU</TableCell>
                         <TableCell
