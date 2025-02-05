@@ -8,7 +8,6 @@ interface MonthlySummaryTableProps {
 }
 
 export const MonthlySummaryTable = ({ monthlyData }: MonthlySummaryTableProps) => {
-    console.log('monthlyData', monthlyData)
     return (
         <Table>
             <TableHeader className="bg-primary">

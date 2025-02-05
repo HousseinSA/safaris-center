@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { Client } from "@/lib/types";
 import { ClientTableBody } from "./ClientTableBody";
 import { Pagination } from "./Pagination";
-import { InvoiceModal } from "./InvoiceModal";
+import { InvoiceModal } from "../Invoice/InvoiceModal";
 
 export default function ClientTable() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function ClientTable() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showInvoice, setShowInvoice] = useState(false);
-  const clientsPerPage = 15;
+  const clientsPerPage = 20;
 
   const fetchClients = async () => {
     setLoading(true);
