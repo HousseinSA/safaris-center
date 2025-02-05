@@ -1,5 +1,5 @@
 import { Client } from "@/lib/types";
-import Invoice  from "../Invoice/Invoice";
+import Invoice from "./Invoice";
 
 interface InvoiceModalProps {
     selectedClient: Client | null;

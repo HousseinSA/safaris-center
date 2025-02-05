@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { Client, Expense } from "@/lib/types";
 import { MonthlySummaryTable } from "./MonthlySummaryTable";
@@ -27,6 +26,7 @@ export default function MonthlySummaryPage() {
             const expensesData: Expense[] = await expensesResponse.json();
             const clientsResponse = await fetch("/api/clients");
             const clientsData: Client[] = await clientsResponse.json();
+
             const years = new Set<number>();
             expensesData.forEach((expense) => years.add(new Date(expense.date).getFullYear()));
             clientsData.forEach((client) => years.add(new Date(client.dateOfBooking).getFullYear()));
@@ -35,11 +35,12 @@ export default function MonthlySummaryPage() {
             setAvailableYears(sortedYears);
 
             if (sortedYears.length > 0) {
-                setCurrentYear(sortedYears[0]);
+                const currentYear = new Date().getFullYear();
+                const initialYear = sortedYears.includes(currentYear) ? currentYear : sortedYears[0];
+                setCurrentYear(initialYear);
+                const groupedData = groupDataByMonth(expensesData, clientsData, initialYear);
+                setMonthlyData(groupedData);
             }
-
-            const groupedData = groupDataByMonth(expensesData, clientsData, sortedYears[0]);
-            setMonthlyData(groupedData);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -50,11 +51,9 @@ export default function MonthlySummaryPage() {
         fetchMonthlyData();
     }, [fetchMonthlyData]);
 
-    // Group data by month and filter by current year
     const groupDataByMonth = (expenses: Expense[], clients: Client[], year: number): MonthlyData[] => {
         const grouped: { [key: string]: { totalServices: number; totalExpenses: number } } = {};
 
-        // Calculate total expenses per month
         expenses.forEach((expense) => {
             const date = new Date(expense.date);
             if (date.getFullYear() === year) {
@@ -66,7 +65,6 @@ export default function MonthlySummaryPage() {
             }
         });
 
-        // Calculate total services per month
         clients.forEach((client) => {
             const date = new Date(client.dateOfBooking);
             if (date.getFullYear() === year) {
@@ -78,7 +76,6 @@ export default function MonthlySummaryPage() {
             }
         });
 
-        // Convert to array and calculate benefits
         return Object.entries(grouped).map(([month, totals]) => ({
             month,
             totalServices: totals.totalServices,
@@ -87,7 +84,6 @@ export default function MonthlySummaryPage() {
         }));
     };
 
-    // Handle year change (pagination)
     const handleNextYear = () => {
         if (currentYear !== null) {
             const nextYear = currentYear + 1;
@@ -118,13 +114,12 @@ export default function MonthlySummaryPage() {
         }
     };
 
-    // Check if pagination should be shown
     const shouldShowPagination = availableYears.length > 1 || (availableYears.length === 1 && availableYears[0] !== new Date().getFullYear());
 
     return (
-        <div className=" md:p-6">
-            <div className="flex justify-between items-center mb-4 ">
-                <h2 className="text-xl font-bold  text-primary">Recettes</h2>
+        <div className="md:p-6">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-primary">Recettes</h2>
                 <Link href={'/'}>
                     <Button className="bg-primary text-white hover:bg-primary-dark flex items-center space-x-2">
                         <Users className="h-4 w-4" />
@@ -132,8 +127,6 @@ export default function MonthlySummaryPage() {
                     </Button>
                 </Link>
             </div>
-
-            {/* Year Pagination */}
             {shouldShowPagination && currentYear !== null && (
                 <YearPagination
                     currentYear={currentYear}
@@ -142,8 +135,6 @@ export default function MonthlySummaryPage() {
                     onPreviousYear={handlePreviousYear}
                 />
             )}
-
-            {/* Monthly Summary Table */}
             <MonthlySummaryTable monthlyData={monthlyData} />
         </div>
     );
