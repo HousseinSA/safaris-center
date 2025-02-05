@@ -7,6 +7,15 @@ import { BeatLoader } from "react-spinners";
 import { Expense } from "@/lib/types";
 import { paymentMethods } from "@/lib/servicesPaymentData";
 import { motion } from "framer-motion";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 interface ExpenseFormProps {
     formData: Expense;
@@ -46,7 +55,7 @@ export const ExpenseForm = ({ formData, editingId, loading, onSubmit, onInputCha
                             placeholder="Montant"
                             value={formData.price}
                             onChange={onInputChange}
-                            min="0"
+                            min="1" 
                             required
                         />
                     </div>
@@ -81,25 +90,30 @@ export const ExpenseForm = ({ formData, editingId, loading, onSubmit, onInputCha
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-1 text-primary">Méthode de paiement</label>
-                        <select
-                            name="paymentMethod"
+                        <Select
                             value={formData.paymentMethod}
-                            onChange={onInputChange}
-                            className="w-full p-2 border rounded"
+                            onValueChange={(value) => onInputChange({ target: { name: 'paymentMethod', value } } as unknown as React.ChangeEvent<HTMLInputElement>)}
                             required
                         >
-                            <option value="" disabled>Méthode de paiement</option>
-                            {paymentMethods.map((method, index) => (
-                                <option key={index} value={method}>
-                                    {method}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger className="w-full rounded-md bg-white text-gray-700 transition-colors duration-300 pr-8">
+                                <SelectValue placeholder="Méthode de paiement" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-md">
+                                <SelectGroup>
+                                    <SelectLabel className="text-primary">Modes de paiement</SelectLabel>
+                                    {paymentMethods.map((method, index) => (
+                                        <SelectItem key={index} value={method} className="text-gray-700 hover:bg-primary hover:text-white">
+                                            {method}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
                 <Button type="submit" className="mt-4 text-white" disabled={loading}>
                     {loading ? <BeatLoader color="#ffffff" size={8} /> : <Save className="h-4 w-4 mr-2" />}
-                    {editingId ? "Modifier" : "Ajouter"}
+                    {editingId ? "Modifier" : "Ajouter"} Dépense
                 </Button>
                 {editingId && (
                     <Button type="button" onClick={onCancel} className="mt-4 ml-2" variant="outline">

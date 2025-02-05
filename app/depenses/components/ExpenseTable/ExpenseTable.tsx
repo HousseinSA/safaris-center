@@ -5,7 +5,7 @@ import { ExpenseGroup } from "./ExpenseGroup";
 import { Expense } from "@/lib/types";
 
 interface ExpenseTableProps {
-    groupedExpenses: { [key: string]: Expense[] };
+    groupedExpenses: { [key: string]: { expenses: Expense[]; total: number } }; // Updated type
     editingId: string | null;
     formData: Expense;
     onEdit: (expense: Expense) => void;
@@ -32,7 +32,7 @@ export const ExpenseTable = ({
             <TableHeader className="bg-primary">
                 <TableRow className="text-white hover:bg-primary">
                     <TableHead className="text-white">Nom de la Dépense</TableHead>
-                    <TableHead className="text-white"> Dépense Montant</TableHead>
+                    <TableHead className="text-white">Dépense Montant</TableHead>
                     <TableHead className="text-white">Responsable</TableHead>
                     <TableHead className="text-white">Date de la Dépense</TableHead>
                     <TableHead className="text-white">Méthode de Paiement</TableHead>
@@ -40,11 +40,12 @@ export const ExpenseTable = ({
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {Object.entries(groupedExpenses).map(([monthYear, expenses]) => (
+                {Object.entries(groupedExpenses).map(([monthYear, { expenses, total }]) => ( // Destructure `expenses` and `total`
                     <ExpenseGroup
                         key={monthYear}
                         monthYear={monthYear}
-                        expenses={expenses}
+                        expenses={expenses} 
+                        total={total} 
                         editingId={editingId}
                         formData={formData}
                         onEdit={onEdit}

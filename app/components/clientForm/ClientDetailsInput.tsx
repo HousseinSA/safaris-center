@@ -6,14 +6,11 @@ interface ClientDetailsInputProps {
     name: string;
     phoneNumber: string;
     responsable: string;
-    paymentMethod: string;
     dateOfBooking: string;
     onNameChange: (value: string) => void;
     onPhoneNumberChange: (value: string) => void;
     onResponsableChange: (value: string) => void;
-    onPaymentMethodChange: (value: string) => void;
     onDateOfBookingChange: (value: string) => void;
-    paymentMethods: string[];
     hasServices: boolean;
     isModalOpen: boolean;
     onConfirmDateChange: () => void;
@@ -25,14 +22,11 @@ export function ClientDetailsInput({
     name,
     phoneNumber,
     responsable,
-    paymentMethod,
     dateOfBooking,
     onNameChange,
     onPhoneNumberChange,
     onResponsableChange,
-    onPaymentMethodChange,
     onDateOfBookingChange,
-    paymentMethods,
     hasServices,
     isModalOpen,
     onConfirmDateChange,
@@ -42,18 +36,23 @@ export function ClientDetailsInput({
 
     const currentDate = new Date().toISOString().split('T')[0];
 
-    // Format existing booking date for input
     const existingBookingDate = dateOfBooking
         ? `${new Date().getFullYear()}-${dateOfBooking.split('/')[0].padStart(2, '0')}-${dateOfBooking.split('/')[1].padStart(2, '0')}`
         : '';
 
-    const minDate = isEditing
-        ? existingBookingDate
-        : currentDate;
+    let minDate = currentDate;
+    // let maxDate = ''; 
 
+    if (isEditing && hasServices) {
+        minDate = currentDate;
+        // maxDate = currentDate;
+    } else if (isEditing) {
+        minDate = currentDate;
+    } else {
+        minDate = currentDate;
+    }
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg">
-            {/* First Column */}
             <div className="space-y-4">
                 <div>
                     <Label className='text-primary' htmlFor="name">Nom de Client</Label>
@@ -81,45 +80,13 @@ export function ClientDetailsInput({
                             const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
                             onDateOfBookingChange(formattedDate);
                         }}
-                        min={minDate} // Use the calculated min date
-                        required
-                    />
-                </div>
-                <div>
-                    <Label className='text-primary' htmlFor="responsable">Responsable</Label>
-                    <Input
-                        id="responsable"
-                        type="text"
-                        value={responsable}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^[a-zA-Z\s]*$/.test(value)) {
-                                onResponsableChange(value);
-                            }
-                        }}
+                        min={minDate}
+                        // max={maxDate} // Allow any future date
                         required
                     />
                 </div>
             </div>
-
-            {/* Second Column */}
-            <div className="space-y-4">
-                <div>
-                    <Label className='text-primary' htmlFor="paymentMethod">Méthode de paiement</Label>
-                    <select
-                        id="paymentMethod"
-                        value={paymentMethod}
-                        onChange={(e) => onPaymentMethodChange(e.target.value)}
-                        className="w-full p-2 border rounded"
-                        required
-                    >
-                        {paymentMethods.map((method, index) => (
-                            <option key={index} value={method}>
-                                {method}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+            <div className={`${isEditing ? "space-y-11" : "space-y-4"}`}>
                 <div>
                     <Label className='text-primary' htmlFor="phoneNumber">Numéro de téléphone</Label>
                     <Input
@@ -133,6 +100,21 @@ export function ClientDetailsInput({
                             }
                         }}
                         maxLength={8}
+                        required
+                    />
+                </div>
+                <div >
+                    <Label className='text-primary' htmlFor="responsable">Responsable</Label>
+                    <Input
+                        id="responsable"
+                        type="text"
+                        value={responsable}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^[a-zA-Z\s]*$/.test(value)) {
+                                onResponsableChange(value);
+                            }
+                        }}
                         required
                     />
                 </div>

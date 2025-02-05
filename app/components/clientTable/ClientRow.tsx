@@ -1,4 +1,3 @@
-"use client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Check, X, CheckCircle } from "lucide-react";
@@ -6,7 +5,7 @@ import { BeatLoader } from "react-spinners";
 import { Client } from "@/lib/types";
 import formatDate from "@/lib/formatDate";
 import { TableCell, TableRow } from "../ui/table";
-import { ConfirmationModal } from "@/components/ConfirmationModal"; // Import the modal
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { useState } from "react";
 
 interface ClientRowProps {
@@ -40,19 +39,26 @@ export const ClientRow = ({
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
 
     const handleDeleteClick = () => {
-        setIsModalOpen(true); // Open the modal
+        setIsModalOpen(true);
     };
 
     const handleConfirmDelete = () => {
-        setIsModalOpen(false); // Close the modal
+        setIsModalOpen(false);
         if (client._id) {
-            onDelete(client._id.toString()); // Trigger the delete function
+            onDelete(client._id.toString());
         }
     };
 
     const handleCancelDelete = () => {
-        setIsModalOpen(false); // Close the modal without deleting
+        setIsModalOpen(false);
     };
+
+    const totalRemainingPayment = client.services.reduce((sum, service) => {
+        if (service.remainingPaymentMethod) {
+            return sum;
+        }
+        return sum + service.remainingPayment;
+    }, 0);
 
     return (
         <TableRow key={client._id?.toString()}>
@@ -77,49 +83,27 @@ export const ClientRow = ({
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <div
-                        key={index}
-                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""
-                            }`}
-                    >
+                    <span key={index} className={`block mb-2 ${index < client.services.length - 1 ? "border-b border-primary pb-2" : ""}`}>
                         <span className="font-semibold">{service.name}:</span>{" "}
                         {(service.price || 0).toLocaleString()} MRU
-                    </div>
+                    </span>
                 ))}
             </TableCell>
 
             <TableCell>
                 {client.services.map((service, index) => (
-                    <div
-                        key={index}
-                        className={`p-1 ${index < client.services.length - 1 ? "border-b border-primary" : ""
-                            }`}
-                    >
+                    <span key={index} className={`block mb-1 text-center ${index < client.services.length - 1 ? "border-b border-primary pb-1" : ""}`}>
                         {(service.upfrontPayment || 0).toLocaleString()} MRU
-                    </div>
+                    </span>
                 ))}
             </TableCell>
-
-            <TableCell>
-                {isEditing ? (
-                    <select
-                        value={editedClient?.paymentMethod || ""}
-                        onChange={(e) =>
-                            setEditedClient({
-                                ...editedClient!,
-                                paymentMethod: e.target.value,
-                            })
-                        }
-                        className="w-full p-2 border rounded"
-                    >
-                        <option value="Cash">Cash</option>
-                        <option value="Bankily">Bankily</option>
-                        <option value="Masrivi">Masrivi</option>
-                        <option value="Sedad">Sedad</option>
-                        <option value="Click">Click</option>
-                    </select>
+            <TableCell className="text-center">
+                {client.services.length > 0 ? (
+                    <span className="font-semibold text-primary">
+                        {client.services[0].upfrontPaymentMethod || "Aucune"}
+                    </span>
                 ) : (
-                    client.paymentMethod
+                    <span className="font-semibold text-primary">Aucune</span>
                 )}
             </TableCell>
 
@@ -162,7 +146,7 @@ export const ClientRow = ({
             </TableCell>
 
             <TableCell>{formatDate(client.dateOfBooking)}</TableCell>
-            <TableCell>{(client.remainingTotal || 0).toLocaleString()} MRU</TableCell>
+            <TableCell>{totalRemainingPayment.toLocaleString()} MRU</TableCell>
             <TableCell>{(client.totalPrice || 0).toLocaleString()} MRU</TableCell>
 
             <TableCell>
@@ -180,7 +164,7 @@ export const ClientRow = ({
                             )}
                         </Button>
                         <Button
-                            onClick={() => onEdit(null)} // Pass null to exit edit mode
+                            onClick={() => onEdit(null)}
                             variant="outline"
                             size="sm"
                         >
@@ -193,7 +177,14 @@ export const ClientRow = ({
                             <Edit className="h-4 w-4" color="white" />
                         </Button>
                         <Button
-                            onClick={handleDeleteClick} // Open the modal on delete click
+                            className="text-white"
+                            onClick={() => client._id && onEditClientPage(client._id.toString())}
+                            size="sm"
+                        >
+                            Éditer
+                        </Button>
+                        <Button
+                            onClick={handleDeleteClick}
                             variant="destructive"
                             size="sm"
                         >
@@ -204,16 +195,9 @@ export const ClientRow = ({
                             )}
                         </Button>
                         <Button
-                            className="text-white"
-                            onClick={() => client._id && onEditClientPage(client._id.toString())}
-                            size="sm"
-                        >
-                            Éditer
-                        </Button>
-                        <Button
                             onClick={() => {
                                 if (client._id) {
-                                    onCheckout(client._id.toString()); // Immediate execution of onCheckout
+                                    onCheckout(client._id.toString());
                                 }
                             }}
                             size="sm"

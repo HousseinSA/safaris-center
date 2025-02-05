@@ -46,15 +46,12 @@ export default function EditClientPage() {
 
   const handleSave = async (updatedClient: Client) => {
     try {
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { _id, ...clientData } = updatedClient;
       const response = await fetch(`/api/clients`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ _id: clientId, ...clientData }), // Explicitly set _id and spread the rest
+        body: JSON.stringify({ _id: clientId, ...updatedClient }), // Include _id to identify which client to update
       });
 
       if (!response.ok) {
@@ -66,10 +63,8 @@ export default function EditClientPage() {
     } catch (error) {
       console.error("Error saving client:", error);
       toast.error("Échec de la mise à jour du client.");
-    } finally {
     }
   };
-
   return (
     <div >
       <div className="flex justify-between mb-4 items-center">

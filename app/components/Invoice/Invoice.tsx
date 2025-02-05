@@ -24,7 +24,7 @@ const Invoice: React.FC<InvoiceProps> = ({ userData, onClose }) => {
         setIsClosing(true);
         setTimeout(() => {
             onClose();
-        }, 200); // Delay closing logic for animation effect
+        }, 200); 
     }, [onClose]);
 
    

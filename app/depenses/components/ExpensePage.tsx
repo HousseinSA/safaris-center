@@ -12,7 +12,7 @@ import { AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { Pagination } from "@/components/clientTable/Pagination";
 
-export default function DepensesPage() {
+export default function ExpensePage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export default function DepensesPage() {
     const [loading, setLoading] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const expensesPerPage = 15; // Set to a small number for testing
+    const expensesPerPage = 15;
 
     useEffect(() => {
         fetchExpenses();
@@ -45,13 +45,18 @@ export default function DepensesPage() {
     const currentExpenses = expenses.slice(indexOfFirstExpense, indexOfLastExpense);
 
     // Group the sliced expenses by month and year
-    const groupedExpenses = currentExpenses.reduce((acc: { [key: string]: Expense[] }, expense) => {
+    // Group the sliced expenses by month and year and calculate the total for each month
+    const groupedExpenses = currentExpenses.reduce((acc: { [key: string]: { expenses: Expense[]; total: number } }, expense) => {
         const date = new Date(expense.date);
         const monthYear = `${date.toLocaleString("fr-FR", { month: "long" })} ${date.getFullYear()}`;
         if (!acc[monthYear]) {
-            acc[monthYear] = [];
+            acc[monthYear] = { expenses: [], total: 0 };
         }
-        acc[monthYear].push(expense);
+        const price = Number(expense.price);
+        if (!isNaN(price)) {
+            acc[monthYear].total += price;
+        }
+        acc[monthYear].expenses.push(expense);
         return acc;
     }, {});
 
@@ -166,7 +171,6 @@ export default function DepensesPage() {
                     {showForm ? "Annuler" : "Ajouter une dépense"}
                 </Button>
             </div>
-
             <AnimatePresence>
                 {showForm && (
                     <ExpenseForm

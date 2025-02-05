@@ -25,11 +25,8 @@ export default function MonthlySummaryPage() {
         try {
             const expensesResponse = await fetch("/api/expenses");
             const expensesData: Expense[] = await expensesResponse.json();
-
             const clientsResponse = await fetch("/api/clients");
             const clientsData: Client[] = await clientsResponse.json();
-
-            // Extract unique years from the data
             const years = new Set<number>();
             expensesData.forEach((expense) => years.add(new Date(expense.date).getFullYear()));
             clientsData.forEach((client) => years.add(new Date(client.dateOfBooking).getFullYear()));
@@ -37,12 +34,10 @@ export default function MonthlySummaryPage() {
             const sortedYears = Array.from(years).sort((a, b) => b - a);
             setAvailableYears(sortedYears);
 
-            // Set the current year to the most recent year with data
             if (sortedYears.length > 0) {
                 setCurrentYear(sortedYears[0]);
             }
 
-            // Group data by month for the selected year
             const groupedData = groupDataByMonth(expensesData, clientsData, sortedYears[0]);
             setMonthlyData(groupedData);
         } catch (error) {

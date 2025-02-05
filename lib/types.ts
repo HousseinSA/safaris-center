@@ -6,13 +6,13 @@ export interface Service {
     remainingPayment: number;
     startDate: string;
     endDate: string;
+    upfrontPaymentMethod?: string; // Include this
+    remainingPaymentMethod?: string; // Include this
 }
-
 export interface Client {
     _id?: ObjectId | string;
     name: string;
     services: Service[];
-    paymentMethod: string;
     phoneNumber: string;
     responsable: string;
     dateOfBooking: string;
