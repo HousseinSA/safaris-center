@@ -12,7 +12,7 @@ import { AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { Pagination } from "@/components/clientTable/Pagination";
 
-export default function DepensesPage() {
+export default function ExpensePage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);

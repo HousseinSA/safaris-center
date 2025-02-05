@@ -25,7 +25,6 @@ export default function MonthlySummaryPage() {
         try {
             const expensesResponse = await fetch("/api/expenses");
             const expensesData: Expense[] = await expensesResponse.json();
-
             const clientsResponse = await fetch("/api/clients");
             const clientsData: Client[] = await clientsResponse.json();
             const years = new Set<number>();

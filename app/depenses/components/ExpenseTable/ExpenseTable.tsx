@@ -44,8 +44,8 @@ export const ExpenseTable = ({
                     <ExpenseGroup
                         key={monthYear}
                         monthYear={monthYear}
-                        expenses={expenses} // Pass only the `expenses` array
-                        total={total} // Pass the `total` value
+                        expenses={expenses} 
+                        total={total} 
                         editingId={editingId}
                         formData={formData}
                         onEdit={onEdit}

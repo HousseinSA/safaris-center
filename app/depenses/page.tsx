@@ -1,9 +1,9 @@
 import React from 'react'
-import DepensesPage from './components/DepensesPage'
+import ExpensePage from './components/ExpensePage'
 
 const page = () => {
     return (
-        <DepensesPage />
+        <ExpensePage />
     )
 }
 

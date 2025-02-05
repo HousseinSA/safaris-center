@@ -100,14 +100,18 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
                     ))}
                 </TableBody>
             </Table>
-            <div className="mt-2 max-w-md bg-gray-100 p-4 rounded-md shadow-sm">
-                <div className="flex justify-between">
-                    <span className="text-primary font-semibold">Montant restant:</span>
-                    <span className="font-medium text-gray-600">{totalRemainingPayment.toLocaleString()} MRU</span>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-md">
+                <div className="flex items-center justify-between mb-1">
+                    <span className="text-primary font-bold text-lg">Montant restant:</span>
+                    <span className="text-gray-800 font-semibold bg-gray-100 px-2 py-1 rounded-md">
+                        {totalRemainingPayment.toLocaleString()} MRU
+                    </span>
                 </div>
-                <div className="flex justify-between mt-1">
-                    <span className="text-primary font-semibold">Montant total:</span>
-                    <span className="font-medium text-gray-600">{services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU</span>
+                <div className="flex items-center justify-between">
+                    <span className="text-primary font-bold text-lg">Montant total:</span>
+                    <span className="text-gray-800 font-semibold bg-gray-100 px-2 py-1 rounded-md">
+                        {services.reduce((sum, service) => sum + service.price, 0).toLocaleString()} MRU
+                    </span>
                 </div>
             </div>
             <ConfirmationModal
