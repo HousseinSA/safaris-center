@@ -48,9 +48,9 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
     handleCancelDateChange,
     upfrontPaymentMethod,
     setUpfrontPaymentMethod,
-    remainingPaymentMethod,
-    setRemainingPaymentMethod,
-    completePayment,
+    remainingPaymentMethod, // Add this line
+    setRemainingPaymentMethod, // Add this line
+    completePayment, // Pass completePayment
   } = useClientForm({ client, onSave });
 
   const isEditing = !!client;
@@ -118,10 +118,10 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
               dateOfBooking={dateOfBooking}
               paymentMethods={paymentMethods}
               upfrontPaymentMethod={upfrontPaymentMethod}
-              remainingPaymentMethod={remainingPaymentMethod}
+              remainingPaymentMethod={remainingPaymentMethod} // Pass this prop
               onUpfrontPaymentMethodChange={setUpfrontPaymentMethod}
               onRemainingPaymentMethodChange={setRemainingPaymentMethod}
-              completePayment={completePayment}
+              completePayment={completePayment} // Pass completePayment prop
             />
             <Button
               type="button"
@@ -140,6 +140,9 @@ export default function AddClientForm({ client, onSave }: AddClientFormProps) {
               Annuler
             </Button>
           </motion.div>
+
+
+
         )}
       </AnimatePresence>
       {services.length > 0 && (

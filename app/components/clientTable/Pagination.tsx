@@ -23,7 +23,7 @@ export const Pagination = ({
     return (
         <div className="flex justify-between items-center px-4 py-2 bg-gray-100 border-t border-gray-200">
             <div className="text-sm text-gray-700">
-                {indexOfFirstClient + 1} - {Math.min(indexOfLastClient, clientsLength)} sur {clientsLength}
+                {indexOfFirstClient + 1} - {Math.min(indexOfLastClient, clientsLength)} of {clientsLength}
             </div>
             <div className="flex items-center gap-2">
                 <Button

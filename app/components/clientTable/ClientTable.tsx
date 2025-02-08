@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Client } from "@/lib/types";
 import { ClientTableBody } from "./ClientTableBody";
 import { Pagination } from "./Pagination";
-import { InvoiceModal } from "../Invoice/InvoiceModal";
 import { showToast } from "@/lib/showToast";
 
+import { InvoiceModal } from "./InvoiceModal";
 
 export default function ClientTable() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function ClientTable() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showInvoice, setShowInvoice] = useState(false);
-  const clientsPerPage = 20;
+  const clientsPerPage = 15;
 
   const fetchClients = async () => {
     setLoading(true);
