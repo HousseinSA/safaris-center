@@ -13,7 +13,8 @@ import {
 import { Service } from "@/lib/types";
 import formatDate from '@/lib/formatDate';
 import { ConfirmationModal } from "@/components/ConfirmationModal";
-import toast from "react-hot-toast";
+import { showToast } from "@/lib/showToast";
+
 
 interface ServiceTableProps {
     services: Service[];
@@ -34,7 +35,7 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
         if (selectedServiceIndex !== null) {
             onRemoveService(selectedServiceIndex);
             setIsModalOpen(false);
-            toast.success("Service deleted successfully!");
+            showToast("success", "Service deleted successfully!");
         }
     };
 

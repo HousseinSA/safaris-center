@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 import { Client } from "@/lib/types";
 import { ClientTableBody } from "./ClientTableBody";
 import { Pagination } from "./Pagination";
 import { InvoiceModal } from "../Invoice/InvoiceModal";
+import { showToast } from "@/lib/showToast";
+
 
 export default function ClientTable() {
   const router = useRouter();
@@ -84,16 +85,16 @@ export default function ClientTable() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Client mis à jour avec succès !");
+        showToast("success", "Client mis à jour avec succès!");
         await fetchClients();
         setEditingId(null);
         setEditedClient(null);
       } else {
-        toast.error(data.error || "Échec de la mise à jour du client");
+        showToast("error", data.error || "Échec de la mise à jour du client");
       }
     } catch (error) {
       console.error("Error updating client:", error);
-      toast.error("Échec de la mise à jour du client");
+      showToast("error", "Échec de la mise à jour du client");
     } finally {
       setLoading(false);
     }
@@ -124,15 +125,15 @@ export default function ClientTable() {
       });
 
       if (response.ok) {
-        toast.success("Client supprimé avec succès !");
+        showToast("success", "Client supprimé avec succès !");
         await fetchClients();
 
       } else {
-        toast.error("Échec de la suppression du client");
+        showToast("error", "Échec de la suppression du client");
       }
     } catch (error) {
       console.error("Error deleting client:", error);
-      toast.error("Échec de la suppression du client");
+      showToast("success", "Échec de la suppression du client");
     } finally {
       setDeletingId(null);
     }
@@ -152,11 +153,11 @@ export default function ClientTable() {
         setSelectedClient(data);
         setShowInvoice(true);
       } else {
-        toast.error("Failed to fetch client data");
+        showToast("error", "Failed to fetch client data");
       }
     } catch (error) {
       console.error("Error fetching client data:", error);
-      toast.error("Failed to fetch client data");
+      showToast("error", "Failed to fetch client data");
     }
   };
 

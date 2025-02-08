@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Plus, Undo2, Users } from "lucide-react";
 import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
 import { Pagination } from "@/components/clientTable/Pagination";
+import { showToast } from "@/lib/showToast";
+
 
 export default function ExpensePage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -105,13 +106,13 @@ export default function ExpensePage() {
                 setEditingId(null);
                 setShowForm(false);
 
-                toast.success(editingId ? "Dépense modifiée avec succès!" : "Dépense créée avec succès!");
+                showToast("success", editingId ? "Dépense modifiée avec succès!" : "Dépense créée avec succès!");
             } else {
                 throw new Error("Failed to save expense");
             }
         } catch (error) {
             console.error("Error submitting expense:", error);
-            toast.error("Erreur lors de la sauvegarde de la dépense");
+            showToast("error", "Erreur lors de la sauvegarde de la dépense");
         } finally {
             setLoading(false);
         }
@@ -125,10 +126,10 @@ export default function ExpensePage() {
                 throw new Error("Failed to delete expense");
             }
             fetchExpenses();
-            toast.success("Dépense supprimée avec succès!");
+            showToast("success", "Dépense supprimée avec succès!");
         } catch (error) {
             console.error("Error deleting expense:", error);
-            toast.error("Erreur lors de la suppression de la dépense");
+            showToast("error", "Erreur lors de la suppression de la dépense");
         } finally {
             setDeletingId(null);
         }

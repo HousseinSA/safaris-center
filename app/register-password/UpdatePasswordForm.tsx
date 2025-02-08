@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
 import { signOut } from "next-auth/react";
 import { BeatLoader } from "react-spinners";
-import { Eye, EyeOff } from 'lucide-react'; // Import Eye and EyeOff icons from react-lucide
+import { Eye, EyeOff } from 'lucide-react';
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { showToast } from "@/lib/showToast";
+
 
 function PasswordUpdateInput() {
     const [currentPassword, setCurrentPassword] = useState("");
@@ -21,17 +23,17 @@ function PasswordUpdateInput() {
 
         // Validate inputs
         if (!currentPassword) {
-            toast.error("Le mot de passe actuel est requis.");
+            showToast("error", "Le mot de passe actuel est requis.");
             return;
         }
 
         if (!newPassword || newPassword.length < 5) {
-            toast.error("Le nouveau mot de passe doit contenir au moins 5 caractères.");
+            showToast("error", "Le nouveau mot de passe doit contenir au moins 5 caractères.");
             return;
         }
 
         if (currentPassword === newPassword) {
-            toast.error("Le nouveau mot de passe doit être différent du mot de passe actuel.");
+            showToast("error", "Le nouveau mot de passe doit être différent du mot de passe actuel.");
             return;
         }
 
@@ -49,16 +51,16 @@ function PasswordUpdateInput() {
             const data = await response.json();
 
             if (response.ok) {
-                toast.success("Mot de passe mis à jour avec succès.");
+                showToast("success", "Mot de passe mis à jour avec succès.");
                 setCurrentPassword("");
                 setNewPassword("");
                 await signOut({ callbackUrl: "/login" });
             } else {
-                toast.error(data.error || "Échec de la mise à jour du mot de passe.");
+                showToast("error", data.error || "Échec de la mise à jour du mot de passe.");
             }
         } catch (err) {
             console.error("Erreur lors de la mise à jour du mot de passe:", err);
-            toast.error("Échec de la mise à jour du mot de passe.");
+            showToast("error", "Échec de la mise à jour du mot de passe.");
         } finally {
             setIsLoading(false);
         }
@@ -84,7 +86,7 @@ function PasswordUpdateInput() {
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                     className="absolute right-3 top-8" // Adjust position as needed
                 >
-                    {showCurrentPassword ? <EyeOff color="grey" /> : <Eye color="grey" />} 
+                    {showCurrentPassword ? <EyeOff color="grey" /> : <Eye color="grey" />}
                 </button>
             </div>
 
@@ -106,7 +108,7 @@ function PasswordUpdateInput() {
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="absolute right-3 top-8" // Adjust position as needed
                 >
-                    {showNewPassword ? <EyeOff  color="grey" /> : <Eye  color="grey"/>} {/* Toggle icon */}
+                    {showNewPassword ? <EyeOff color="grey" /> : <Eye color="grey" />} {/* Toggle icon */}
                 </button>
             </div>
 

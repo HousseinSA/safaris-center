@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { Client } from "@/lib/types";
 import { useService } from "./useService";
+import { showToast } from "@/lib/showToast";
 
 interface UseClientFormProps {
     client?: Client;
@@ -77,7 +77,7 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         e.preventDefault();
 
         if (services.length === 0) {
-            toast.error("Veuillez ajouter au moins un service pour créer un client.");
+            showToast('error', "Veuillez ajouter au moins un service pour créer un client.");
             return;
         }
 
@@ -85,18 +85,18 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
         const remainingTotal = services.reduce((sum, service) => sum + (service.remainingPayment || 0), 0);
 
         if (!name || !phoneNumber || !responsable || !dateOfBooking) {
-            toast.error("Veuillez remplir tous les champs correctement.");
+            showToast('error', "Veuillez remplir tous les champs correctement.");
             return;
         }
 
         if (!/^[234]\d{7}$/.test(phoneNumber)) {
-            toast.error("Le numéro de téléphone doit commencer par 2, 3 ou 4 et avoir exactement 8 chiffres.");
+            showToast("error", "Le numéro de téléphone doit commencer par 2, 3 ou 4 et avoir exactement 8 chiffres.");
             return;
         }
 
         for (const service of services) {
             if (service.upfrontPayment > service.price) {
-                toast.error(`Le paiement initial pour le service "${service.name}" ne peut pas dépasser le montant du service.`);
+                showToast("error", `Le paiement initial pour le service "${service.name}" ne peut pas dépasser le montant du service.`);
                 return;
             }
         }
@@ -126,7 +126,7 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
 
         if (onSave) {
             onSave(newClient);
-            toast.success("Client modifié avec succès !");
+            showToast("success", "Client modifié avec succès !");
             router.push("/");
         } else {
             try {
@@ -137,15 +137,15 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
                 });
 
                 if (response.ok) {
-                    toast.success("Client enregistré avec succès !");
+                    showToast("success", "Client enregistré avec succès !");
                     router.push("/");
                 } else {
-                    toast.error("Échec de l'enregistrement du client.");
+                    showToast("error", "Échec de l'enregistrement du client.");
                 }
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
-                toast.error("Échec de l'enregistrement du client.");
+                showToast('error', "Échec de l'enregistrement du client.");
             } finally {
                 setLoading(false);
             }
