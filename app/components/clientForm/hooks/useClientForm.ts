@@ -100,10 +100,9 @@ export const useClientForm = ({ client, onSave }: UseClientFormProps) => {
                 return;
             }
         }
-
+                
         const [bookingMonth, bookingDay] = dateOfBooking.split("/");
-        const bookingDate = new Date(new Date().getFullYear(), parseInt(bookingMonth) - 1, parseInt(bookingDay));
-
+        const bookingDate = new Date(new Date().getFullYear(), parseInt(bookingMonth) - 1, parseInt(bookingDay), new Date().getHours(), new Date().getMinutes());
         const newClient: Client = {
             name,
             services: services.map(service => ({

@@ -6,8 +6,8 @@ export interface Service {
     remainingPayment: number;
     startDate: string;
     endDate: string;
-    upfrontPaymentMethod?: string; // Include this
-    remainingPaymentMethod?: string; // Include this
+    upfrontPaymentMethod?: string;
+    remainingPaymentMethod?: string;
 }
 export interface Client {
     _id?: ObjectId | string;
@@ -16,9 +16,9 @@ export interface Client {
     phoneNumber: string;
     responsable: string;
     dateOfBooking: string;
-    totalPrice: number;         // Total of all service prices
-    remainingTotal: number;     // Total of all remaining payments
-    createdAt?: string;
+    totalPrice: number;
+    remainingTotal: number;
+    createdAt?: string ;
     updatedAt?: string;
 }
 
@@ -27,7 +27,7 @@ export interface Expense {
     name: string;
     price: number;
     responsable: string;
-    date: string; // Use ISO string or Date type
+    date: string;
     paymentMethod: string;
 }
 export interface MonthlyData {

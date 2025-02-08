@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import formatDate from "@/lib/formatDate";
 import { paymentMethods } from "@/lib/servicesPaymentData";
 import React, { useState } from "react";
-import { ConfirmationModal } from "@/components/ConfirmationModal"; // Import the modal
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 interface ExpenseRowProps {
     expense: Expense;
@@ -61,6 +61,7 @@ export const ExpenseRow = ({
         setIsModalOpen(false);
     };
 
+    const formattedDate = new Date(formData.date).toISOString().split("T")[0];
     return (
         <TableRow key={String(expense._id)}>
             <TableCell>
@@ -103,7 +104,7 @@ export const ExpenseRow = ({
                     <Input
                         name="date"
                         type="date"
-                        value={formData.date}
+                        value={formattedDate}
                         onChange={onInputChange}
                         min={new Date().toISOString().split("T")[0]}
                     />
@@ -154,7 +155,7 @@ export const ExpenseRow = ({
                             <Edit className="h-4 w-4" />
                         </Button>
                         <Button
-                            onClick={handleDeleteClick} 
+                            onClick={handleDeleteClick}
                             size="sm"
                             variant="destructive"
                             disabled={deletingId === expense._id}

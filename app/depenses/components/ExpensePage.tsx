@@ -92,7 +92,21 @@ export default function ExpensePage() {
         const method = editingId ? "PUT" : "POST";
 
         try {
-            const payload = editingId ? formData : { ...formData, _id: undefined };
+            // Split the date into components and convert to numbers
+            const [year, month, day] = formData.date.split("-").map(num => parseInt(num, 10));
+            const currentTime = new Date();
+            // Create a new Date object with the current time
+            const expenseDate = new Date(year, month - 1, day, currentTime.getHours(), currentTime.getMinutes());
+
+            const payload = {
+                ...formData,
+                date: expenseDate.toISOString(), // Send in ISO format with time
+            };
+
+            // Remove _id for new expense creation
+            if (!editingId) {
+                delete payload._id; // Ensure _id is not included in the new expense
+            }
 
             const response = await fetch(url, {
                 method,

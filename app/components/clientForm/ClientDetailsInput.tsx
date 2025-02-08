@@ -37,7 +37,6 @@ export function ClientDetailsInput({
     const currentDate = new Date().toISOString().split('T')[0];
 
     const [isReservationClick, setIsReservationClick] = useState(false);
-
     const existingBookingDate = dateOfBooking
         ? `${new Date().getFullYear()}-${dateOfBooking.split('/')[0].padStart(2, '0')}-${dateOfBooking.split('/')[1].padStart(2, '0')}`
         : '';
@@ -69,9 +68,14 @@ export function ClientDetailsInput({
                         value={dateOfBooking ? existingBookingDate : ''}
                         onClick={() => setIsReservationClick(true)}
                         onChange={(e) => {
-                            const selectedDate = e.target.value;
-                            const formattedDate = `${new Date(selectedDate).getMonth() + 1}/${new Date(selectedDate).getDate()}`;
-                            onDateOfBookingChange(formattedDate);
+                            const value = e.target.value;
+                            if (value) {
+                                const [, month, day] = value.split("-");
+                                const formattedDate = `${month}/${day}`;
+                                onDateOfBookingChange(formattedDate);
+                            } else {
+                                onDateOfBookingChange("");
+                            }
                         }}
                         onBlur={(e) => {
                             if (e.target.value === existingBookingDate) {
