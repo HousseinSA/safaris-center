@@ -28,7 +28,7 @@ export default function ExpensePage() {
     const [loading, setLoading] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const expensesPerPage = 15;
+    const expensesPerPage = 20;
 
     useEffect(() => {
         fetchExpenses();

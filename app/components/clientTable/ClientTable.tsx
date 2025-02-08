@@ -19,7 +19,7 @@ export default function ClientTable() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showInvoice, setShowInvoice] = useState(false);
-  const clientsPerPage = 15;
+  const clientsPerPage = 20;
 
   const fetchClients = async () => {
     setLoading(true);
