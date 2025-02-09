@@ -15,6 +15,7 @@ interface ExpenseGroupProps {
     onSubmit: (e: React.FormEvent) => void;
     onCancelEdit: () => void;
     deletingId: string | null;
+    onDeleteClick: (id: string) => void;
 }
 
 export const ExpenseGroup = ({
@@ -29,6 +30,7 @@ export const ExpenseGroup = ({
     onSubmit,
     onCancelEdit,
     deletingId,
+    onDeleteClick
 }: ExpenseGroupProps) => {
     return (
         <>
@@ -52,6 +54,7 @@ export const ExpenseGroup = ({
                     onSubmit={onSubmit}
                     onCancelEdit={onCancelEdit}
                     deletingId={deletingId}
+                    onDeleteClick={onDeleteClick}
                 />
             ))}
 

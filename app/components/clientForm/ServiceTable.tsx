@@ -52,7 +52,7 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
     }, 0);
 
     return (
-        <div className="bg-white rounded-md shadow-md md:p-4 mx-auto"> {/* Container styles */}
+        <div className="bg-white rounded-md shadow-md md:p-4 mx-auto">
             <Label className="text-primary text-md">Services Table</Label>
             <Table>
                 <TableHeader className="bg-primary">

@@ -1,9 +1,9 @@
-'use client';
 import { useState, useEffect, useCallback } from "react";
 import { Expense } from "@/lib/types";
 import { showToast } from "@/lib/showToast";
 
 export const useExpenses = () => {
+    // State Management
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -18,11 +18,16 @@ export const useExpenses = () => {
     const [loading, setLoading] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const expensesPerPage = 20;
     const [groupedExpenses, setGroupedExpenses] = useState<{ [key: string]: { expenses: Expense[]; total: number } }>({});
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(null);
 
+    // Pagination start count 
+    const expensesPerPage = 20;
+
+    // Group Expenses by Month
     const groupExpensesByMonth = useCallback((expenses: Expense[]) => {
-        const groupedExpenses = expenses.reduce((acc: { [key: string]: { expenses: Expense[]; total: number } }, expense) => {
+        const grouped = expenses.reduce((acc, expense) => {
             const date = new Date(expense.date);
             const monthYear = `${date.toLocaleString("fr-FR", { month: "long" })} ${date.getFullYear()}`;
             if (!acc[monthYear]) {
@@ -34,17 +39,18 @@ export const useExpenses = () => {
             }
             acc[monthYear].expenses.push(expense);
             return acc;
-        }, {});
+        }, {} as { [key: string]: { expenses: Expense[]; total: number } });
 
-        setGroupedExpenses(groupedExpenses);
+        setGroupedExpenses(grouped);
     }, []);
 
+    // Fetch Expenses
     const fetchExpenses = useCallback(async () => {
         try {
             const response = await fetch("/api/expenses");
-            const expensesData: Expense[] = await response.json();
-            setExpenses(expensesData);
-            groupExpensesByMonth(expensesData);
+            const data: Expense[] = await response.json();
+            setExpenses(data);
+            groupExpensesByMonth(data);
         } catch (error) {
             console.error("Error fetching expenses:", error);
             showToast("error", "Erreur lors du chargement des dépenses");
@@ -55,21 +61,22 @@ export const useExpenses = () => {
         fetchExpenses();
     }, [fetchExpenses]);
 
+    // Pagination Logic
     const allExpenses = Object.values(groupedExpenses).flatMap(group => group.expenses);
     const indexOfLastExpense = currentPage * expensesPerPage;
     const indexOfFirstExpense = indexOfLastExpense - expensesPerPage;
     const currentExpenses = allExpenses.slice(indexOfFirstExpense, indexOfLastExpense);
 
-    const currentGroupedExpenses = currentExpenses.reduce((acc: { [key: string]: { expenses: Expense[]; total: number } }, expense) => {
+    const currentGroupedExpenses = currentExpenses.reduce((acc, expense) => {
         const date = new Date(expense.date);
         const monthYear = `${date.toLocaleString("fr-FR", { month: "long" })} ${date.getFullYear()}`;
         if (!acc[monthYear]) {
             acc[monthYear] = { expenses: [], total: 0 };
         }
         acc[monthYear].expenses.push(expense);
-        acc[monthYear].total = groupedExpenses[monthYear].total;
+        acc[monthYear].total = groupedExpenses[monthYear]?.total || 0;
         return acc;
-    }, {});
+    }, {} as { [key: string]: { expenses: Expense[]; total: number } });
 
     const totalPages = Math.ceil(allExpenses.length / expensesPerPage);
 
@@ -85,6 +92,7 @@ export const useExpenses = () => {
         }
     };
 
+    // Form Handling
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         if (name === "price" && parseFloat(value) < 0) return;
@@ -99,7 +107,7 @@ export const useExpenses = () => {
         const method = editingId ? "PUT" : "POST";
 
         try {
-            const [year, month, day] = formData.date.split("-").map(num => parseInt(num, 10));
+            const [year, month, day] = formData.date.split("-").map(Number);
             const currentTime = new Date();
             const expenseDate = new Date(year, month - 1, day, currentTime.getHours(), currentTime.getMinutes());
 
@@ -120,10 +128,16 @@ export const useExpenses = () => {
 
             if (response.ok) {
                 fetchExpenses();
-                setFormData({ _id: "", name: "", price: 0, responsable: "", date: new Date().toISOString().split("T")[0], paymentMethod: "" });
+                setFormData({
+                    _id: "",
+                    name: "",
+                    price: 0,
+                    responsable: "",
+                    date: new Date().toISOString().split("T")[0],
+                    paymentMethod: "Cash",
+                });
                 setEditingId(null);
                 setShowForm(false);
-
                 showToast("success", editingId ? "Dépense modifiée avec succès!" : "Dépense créée avec succès!");
             } else {
                 throw new Error("Failed to save expense");
@@ -136,8 +150,10 @@ export const useExpenses = () => {
         }
     };
 
+    // Delete Handling
     const handleDelete = async (id: string) => {
         setDeletingId(id);
+
         try {
             const response = await fetch(`/api/expenses?id=${id}`, { method: "DELETE" });
             if (!response.ok) {
@@ -153,6 +169,7 @@ export const useExpenses = () => {
         }
     };
 
+    // Edit Handling
     const handleEdit = (expense: Expense) => {
         setFormData(expense);
         setEditingId(expense._id ? String(expense._id) : null);
@@ -160,16 +177,37 @@ export const useExpenses = () => {
 
     const handleCancelEdit = () => {
         setEditingId(null);
-        setFormData({ _id: "", name: "", price: 0, responsable: "", date: new Date().toISOString().split("T")[0], paymentMethod: "" });
+        setFormData({
+            _id: "",
+            name: "",
+            price: 0,
+            responsable: "",
+            date: new Date().toISOString().split("T")[0],
+            paymentMethod: "Cash",
+        });
     };
 
+    // Confirmation Modal
+    const handleDeleteClick = (id: string) => {
+        setSelectedExpenseId(id);
+        setIsModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (selectedExpenseId) {
+            handleDelete(selectedExpenseId);
+        }
+        setIsModalOpen(false);
+    };
+
+    const handleCancelDelete = () => {
+        setIsModalOpen(false);
+    };
+
+    // Total Expenses Calculation
     const totalExpenses = allExpenses.reduce((total, expense) => {
         const price = Number(expense.price);
-        if (isNaN(price)) {
-            console.warn("Invalid price found for expense:", expense);
-            return total;
-        }
-        return total + price;
+        return isNaN(price) ? total : total + price;
     }, 0);
 
     return {
@@ -194,5 +232,9 @@ export const useExpenses = () => {
         handleEdit,
         handleCancelEdit,
         totalExpenses,
+        isModalOpen,
+        handleCancelDelete,
+        handleConfirmDelete,
+        handleDeleteClick,
     };
 };

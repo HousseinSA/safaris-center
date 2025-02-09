@@ -5,8 +5,6 @@ import { BeatLoader } from "react-spinners";
 import { Client } from "@/lib/types";
 import formatDate from "@/lib/formatDate";
 import { TableCell, TableRow } from "../ui/table";
-import { ConfirmationModal } from "@/components/ConfirmationModal";
-import { useState } from "react";
 
 interface ClientRowProps {
     client: Client;
@@ -36,16 +34,6 @@ export const ClientRow = ({
     setEditedClient,
 }: ClientRowProps) => {
     const isEditing = editingId === client._id;
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const handleDeleteClick = () => setIsModalOpen(true);
-
-    const handleConfirmDelete = () => {
-        setIsModalOpen(false);
-        if (client._id) onDelete(client._id.toString());
-    };
-
-    const handleCancelDelete = () => setIsModalOpen(false);
 
     const totalRemainingPayment = client.services.reduce((sum, service) => {
         return service.remainingPaymentMethod ? sum : sum + service.remainingPayment;
@@ -57,20 +45,36 @@ export const ClientRow = ({
         ? formatDate(reservationDate.toISOString())
         : formatDate(client.createdAt || new Date());
 
+    // Event handlers
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (/^[A-Za-z\s]*$/.test(value)) {
+            setEditedClient({ ...editedClient!, name: value });
+        }
+    };
+
+    const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value) && value.length <= 8) {
+            setEditedClient({ ...editedClient!, phoneNumber: value });
+        }
+    };
+
+    const handleResponsableChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (/^[A-Za-z\s]*$/.test(value)) {
+            setEditedClient({ ...editedClient!, responsable: value });
+        }
+    };
+
     return (
         <TableRow key={client._id?.toString()}>
             <TableCell>
                 {isEditing ? (
-                    <Input
-                        value={editedClient?.name || ""}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^[A-Za-z\s]*$/.test(value)) {
-                                setEditedClient({ ...editedClient!, name: value });
-                            }
-                        }}
-                    />
-                ) : client.name}
+                    <Input value={editedClient?.name || ""} onChange={handleNameChange} />
+                ) : (
+                    client.name
+                )}
             </TableCell>
 
             <TableCell>
@@ -99,30 +103,18 @@ export const ClientRow = ({
 
             <TableCell>
                 {isEditing ? (
-                    <Input
-                        value={editedClient?.phoneNumber || ""}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^\d*$/.test(value) && value.length <= 8) {
-                                setEditedClient({ ...editedClient!, phoneNumber: value });
-                            }
-                        }}
-                    />
-                ) : client.phoneNumber}
+                    <Input value={editedClient?.phoneNumber || ""} onChange={handlePhoneNumberChange} />
+                ) : (
+                    client.phoneNumber
+                )}
             </TableCell>
 
             <TableCell>
                 {isEditing ? (
-                    <Input
-                        value={editedClient?.responsable || ""}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^[A-Za-z\s]*$/.test(value)) {
-                                setEditedClient({ ...editedClient!, responsable: value });
-                            }
-                        }}
-                    />
-                ) : client.responsable}
+                    <Input value={editedClient?.responsable || ""} onChange={handleResponsableChange} />
+                ) : (
+                    client.responsable
+                )}
             </TableCell>
 
             <TableCell>{displayDate}</TableCell>
@@ -144,30 +136,22 @@ export const ClientRow = ({
                         <Button onClick={() => onEdit(client)} size="sm">
                             <Edit className="h-4 w-4" color="white" />
                         </Button>
-                        <Button className="text-white" onClick={() => client._id && onEditClientPage(client._id.toString())} size="sm">
+                        <Button className="text-white" onClick={() => onEditClientPage(client._id!.toString())} size="sm">
                             Éditer
                         </Button>
-                        <Button onClick={handleDeleteClick} variant="destructive" size="sm">
+                        <Button onClick={() => onDelete(client._id!.toString())} variant="destructive" size="sm">
                             {client._id && deletingId === client._id.toString() ? (
                                 <BeatLoader color="#ffffff" size={4} />
                             ) : (
                                 <Trash className="h-4 w-4" color="white" />
                             )}
                         </Button>
-                        <Button onClick={() => client._id && onCheckout(client._id.toString())} size="sm">
+                        <Button onClick={() => onCheckout(client._id!.toString())} size="sm">
                             <CheckCircle className="h-4 w-4" color="white" />
                         </Button>
                     </div>
                 )}
             </TableCell>
-
-            <ConfirmationModal
-                isOpen={isModalOpen}
-                onConfirm={handleConfirmDelete}
-                onCancel={handleCancelDelete}
-                title="Confirmer la suppression"
-                message="Êtes-vous sûr de vouloir supprimer ce client ?"
-            />
         </TableRow>
     );
 };
