@@ -5,7 +5,7 @@ import { ExpenseGroup } from "./ExpenseGroup";
 import { Expense } from "@/lib/types";
 
 interface ExpenseTableProps {
-    groupedExpenses: { [key: string]: { expenses: Expense[]; total: number } }; // Updated type
+    groupedExpenses: { [key: string]: { expenses: Expense[]; total: number } }; 
     editingId: string | null;
     formData: Expense;
     onEdit: (expense: Expense) => void;
