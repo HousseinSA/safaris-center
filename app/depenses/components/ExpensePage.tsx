@@ -29,7 +29,6 @@ export default function ExpensePage() {
         handlePreviousPage,
         handleInputChange,
         handleSubmit,
-        handleDelete,
         handleEdit,
         handleCancelEdit,
         totalExpenses,
@@ -99,7 +98,6 @@ export default function ExpensePage() {
                     editingId={editingId}
                     formData={formData}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
                     onInputChange={handleInputChange}
                     onSubmit={handleSubmit}
                     onCancelEdit={handleCancelEdit}

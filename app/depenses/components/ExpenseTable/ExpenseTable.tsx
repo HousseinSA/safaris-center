@@ -8,7 +8,6 @@ interface ExpenseTableProps {
     editingId: string | null;
     formData: Expense;
     onEdit: (expense: Expense) => void;
-    onDelete: (id: string) => void;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
     onCancelEdit: () => void;
@@ -21,7 +20,6 @@ export const ExpenseTable = ({
     editingId,
     formData,
     onEdit,
-    onDelete,
     onInputChange,
     onSubmit,
     onCancelEdit,
@@ -50,7 +48,6 @@ export const ExpenseTable = ({
                         editingId={editingId}
                         formData={formData}
                         onEdit={onEdit}
-                        onDelete={onDelete}
                         onInputChange={onInputChange}
                         onSubmit={onSubmit}
                         onCancelEdit={onCancelEdit}

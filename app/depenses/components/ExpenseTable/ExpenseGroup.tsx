@@ -10,7 +10,6 @@ interface ExpenseGroupProps {
     editingId: string | null;
     formData: Expense;
     onEdit: (expense: Expense) => void;
-    onDelete: (id: string) => void;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
     onCancelEdit: () => void;
@@ -25,7 +24,6 @@ export const ExpenseGroup = ({
     editingId,
     formData,
     onEdit,
-    onDelete,
     onInputChange,
     onSubmit,
     onCancelEdit,
@@ -49,7 +47,6 @@ export const ExpenseGroup = ({
                     editingId={editingId}
                     formData={formData}
                     onEdit={onEdit}
-                    onDelete={onDelete}
                     onInputChange={onInputChange}
                     onSubmit={onSubmit}
                     onCancelEdit={onCancelEdit}

@@ -228,7 +228,6 @@ export const useExpenses = () => {
         handlePreviousPage,
         handleInputChange,
         handleSubmit,
-        handleDelete,
         handleEdit,
         handleCancelEdit,
         totalExpenses,
