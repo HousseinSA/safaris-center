@@ -1,5 +1,4 @@
-"use client";
-
+'use client'
 import { useState, useEffect, useCallback } from "react";
 import { Client, Expense } from "@/lib/types";
 import { MonthlySummaryTable } from "./MonthlySummaryTable";
@@ -34,11 +33,12 @@ export default function MonthlySummaryPage() {
             const sortedYears = Array.from(years).sort((a, b) => b - a);
             setAvailableYears(sortedYears);
 
-            if (sortedYears.length > 0) {
-                setCurrentYear(sortedYears[0]);
-            }
+            // Determine the starting year
+            const currentYear = new Date().getFullYear();
+            const startingYear = sortedYears.find(year => year <= currentYear) || sortedYears[0];
+            setCurrentYear(startingYear);
 
-            const groupedData = groupDataByMonth(expensesData, clientsData, sortedYears[0]);
+            const groupedData = groupDataByMonth(expensesData, clientsData, startingYear);
             setMonthlyData(groupedData);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -93,12 +93,7 @@ export default function MonthlySummaryPage() {
             const nextYear = currentYear + 1;
             if (availableYears.includes(nextYear)) {
                 setCurrentYear(nextYear);
-                const expensesResponse = fetch("/api/expenses").then((res) => res.json());
-                const clientsResponse = fetch("/api/clients").then((res) => res.json());
-                Promise.all([expensesResponse, clientsResponse]).then(([expensesData, clientsData]) => {
-                    const groupedData = groupDataByMonth(expensesData, clientsData, nextYear);
-                    setMonthlyData(groupedData);
-                });
+                fetchDataForYear(nextYear);
             }
         }
     };
@@ -108,23 +103,27 @@ export default function MonthlySummaryPage() {
             const previousYear = currentYear - 1;
             if (availableYears.includes(previousYear)) {
                 setCurrentYear(previousYear);
-                const expensesResponse = fetch("/api/expenses").then((res) => res.json());
-                const clientsResponse = fetch("/api/clients").then((res) => res.json());
-                Promise.all([expensesResponse, clientsResponse]).then(([expensesData, clientsData]) => {
-                    const groupedData = groupDataByMonth(expensesData, clientsData, previousYear);
-                    setMonthlyData(groupedData);
-                });
+                fetchDataForYear(previousYear);
             }
         }
+    };
+
+    const fetchDataForYear = async (year: number) => {
+        const expensesResponse = await fetch("/api/expenses");
+        const expensesData: Expense[] = await expensesResponse.json();
+        const clientsResponse = await fetch("/api/clients");
+        const clientsData: Client[] = await clientsResponse.json();
+        const groupedData = groupDataByMonth(expensesData, clientsData, year);
+        setMonthlyData(groupedData);
     };
 
     // Check if pagination should be shown
     const shouldShowPagination = availableYears.length > 1 || (availableYears.length === 1 && availableYears[0] !== new Date().getFullYear());
 
     return (
-        <div className=" md:p-6">
-            <div className="flex justify-between items-center mb-4 ">
-                <h2 className="text-xl font-bold  text-primary">Recettes</h2>
+        <div className="md:p-6">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-primary">Recettes</h2>
                 <Link href={'/'}>
                     <Button className="bg-primary text-white hover:bg-primary-dark flex items-center space-x-2">
                         <Users className="h-4 w-4" />
