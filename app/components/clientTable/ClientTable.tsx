@@ -2,9 +2,9 @@
 
 import { ClientTableBody } from "./ClientTableBody";
 import { Pagination } from "./Pagination";
-import { InvoiceModal } from "./InvoiceModal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { useClient } from "./hooks/useClients";
+import { InvoiceModal } from "../Invoice/InvoiceModal";
 
 export default function ClientTable() {
   const {
