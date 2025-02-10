@@ -83,7 +83,6 @@ export function ServiceInput({
     }
   };
 
-  // Reset the payment methods to the initial option
   const resetUpfrontPaymentMethod = () => {
     onUpfrontPaymentMethodChange("");
   };
@@ -94,7 +93,6 @@ export function ServiceInput({
 
   return (
     <div className="grid md:grid-cols-2 gap-4 border p-4 rounded-lg">
-      {/* Service Dropdown */}
       <div>
         <Label className="text-primary" htmlFor="service">
           Service

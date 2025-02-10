@@ -55,7 +55,7 @@ export const ExpenseForm = ({ formData, editingId, loading, onSubmit, onInputCha
                             placeholder="Montant"
                             value={formData.price}
                             onChange={onInputChange}
-                            min="1" 
+                            min="1"
                             required
                         />
                     </div>

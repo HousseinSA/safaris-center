@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { useState } from "react";
 
 interface ClientDetailsInputProps {
     name: string;
@@ -33,24 +34,14 @@ export function ClientDetailsInput({
     onCancelDateChange,
     isEditing
 }: ClientDetailsInputProps) {
-
     const currentDate = new Date().toISOString().split('T')[0];
 
+    const [isReservationClick, setIsReservationClick] = useState(false);
     const existingBookingDate = dateOfBooking
         ? `${new Date().getFullYear()}-${dateOfBooking.split('/')[0].padStart(2, '0')}-${dateOfBooking.split('/')[1].padStart(2, '0')}`
         : '';
+    const minDate = isReservationClick ? currentDate : existingBookingDate || currentDate;
 
-    let minDate = currentDate;
-    // let maxDate = ''; 
-
-    if (isEditing && hasServices) {
-        minDate = currentDate;
-        // maxDate = currentDate;
-    } else if (isEditing) {
-        minDate = currentDate;
-    } else {
-        minDate = currentDate;
-    }
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg">
             <div className="space-y-4">
@@ -75,13 +66,23 @@ export function ClientDetailsInput({
                         id="dateOfBooking"
                         type="date"
                         value={dateOfBooking ? existingBookingDate : ''}
+                        onClick={() => setIsReservationClick(true)}
                         onChange={(e) => {
-                            const date = new Date(e.target.value);
-                            const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-                            onDateOfBookingChange(formattedDate);
+                            const value = e.target.value;
+                            if (value) {
+                                const [, month, day] = value.split("-");
+                                const formattedDate = `${month}/${day}`;
+                                onDateOfBookingChange(formattedDate);
+                            } else {
+                                onDateOfBookingChange("");
+                            }
+                        }}
+                        onBlur={(e) => {
+                            if (e.target.value === existingBookingDate) {
+                                setIsReservationClick(false);
+                            }
                         }}
                         min={minDate}
-                        // max={maxDate} // Allow any future date
                         required
                     />
                 </div>
@@ -103,7 +104,7 @@ export function ClientDetailsInput({
                         required
                     />
                 </div>
-                <div >
+                <div>
                     <Label className='text-primary' htmlFor="responsable">Responsable</Label>
                     <Input
                         id="responsable"
@@ -119,7 +120,6 @@ export function ClientDetailsInput({
                     />
                 </div>
             </div>
-
             {/* Confirmation Modal */}
             <ConfirmationModal
                 isOpen={isModalOpen}

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 interface ConfirmationModalProps {
     isOpen: boolean;
     onConfirm: () => void;
-    onCancel: () => void; // Just hide the modal, no additional logic
+    onCancel: () => void; 
     title?: string;
     message?: string;
     isDate?: boolean;

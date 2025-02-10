@@ -1,19 +1,18 @@
 "use client";
-
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ExpenseGroup } from "./ExpenseGroup";
 import { Expense } from "@/lib/types";
 
 interface ExpenseTableProps {
-    groupedExpenses: { [key: string]: { expenses: Expense[]; total: number } }; // Updated type
+    groupedExpenses: { [key: string]: { expenses: Expense[]; total: number } };
     editingId: string | null;
     formData: Expense;
     onEdit: (expense: Expense) => void;
-    onDelete: (id: string) => void;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
     onCancelEdit: () => void;
     deletingId: string | null;
+    onDeleteClick: (id: string) => void;
 }
 
 export const ExpenseTable = ({
@@ -21,11 +20,11 @@ export const ExpenseTable = ({
     editingId,
     formData,
     onEdit,
-    onDelete,
     onInputChange,
     onSubmit,
     onCancelEdit,
     deletingId,
+    onDeleteClick,
 }: ExpenseTableProps) => {
     return (
         <Table>
@@ -40,20 +39,20 @@ export const ExpenseTable = ({
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {Object.entries(groupedExpenses).map(([monthYear, { expenses, total }]) => ( // Destructure `expenses` and `total`
+                {Object.entries(groupedExpenses).map(([monthYear, { expenses, total }]) => (
                     <ExpenseGroup
                         key={monthYear}
                         monthYear={monthYear}
-                        expenses={expenses} 
-                        total={total} 
+                        expenses={expenses}
+                        total={total}
                         editingId={editingId}
                         formData={formData}
                         onEdit={onEdit}
-                        onDelete={onDelete}
                         onInputChange={onInputChange}
                         onSubmit={onSubmit}
                         onCancelEdit={onCancelEdit}
                         deletingId={deletingId}
+                        onDeleteClick={onDeleteClick}
                     />
                 ))}
             </TableBody>

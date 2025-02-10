@@ -13,7 +13,8 @@ import {
 import { Service } from "@/lib/types";
 import formatDate from '@/lib/formatDate';
 import { ConfirmationModal } from "@/components/ConfirmationModal";
-import toast from "react-hot-toast";
+import { showToast } from "@/lib/showToast";
+
 
 interface ServiceTableProps {
     services: Service[];
@@ -34,7 +35,7 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
         if (selectedServiceIndex !== null) {
             onRemoveService(selectedServiceIndex);
             setIsModalOpen(false);
-            toast.success("Service deleted successfully!");
+            showToast("success", "Service deleted successfully!");
         }
     };
 
@@ -51,7 +52,7 @@ export function ServiceTable({ services, onEditService, onRemoveService }: Servi
     }, 0);
 
     return (
-        <div className="bg-white rounded-md shadow-md md:p-4 mx-auto"> {/* Container styles */}
+        <div className="bg-white rounded-md shadow-md md:p-4 mx-auto">
             <Label className="text-primary text-md">Services Table</Label>
             <Table>
                 <TableHeader className="bg-primary">
