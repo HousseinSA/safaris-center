@@ -145,6 +145,7 @@ export const useExpenses = () => {
         } catch (error) {
             console.error("Error submitting expense:", error);
             showToast("error", "Erreur lors de la sauvegarde de la dépense");
+
         } finally {
             setLoading(false);
         }
@@ -171,10 +172,11 @@ export const useExpenses = () => {
 
     // Edit Handling
     const handleEdit = (expense: Expense) => {
-        setFormData(expense);
+        setFormData({ ...expense, date: new Date(expense.date).toISOString().split("T")[0] })
         setEditingId(expense._id ? String(expense._id) : null);
     };
 
+    console.log(formData)
     const handleCancelEdit = () => {
         setEditingId(null);
         setFormData({

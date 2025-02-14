@@ -1,6 +1,6 @@
 "use client";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { ExpenseRow } from "./ExpenseRow";
+import { ExpenseRow } from "./ExpenseRow/ExpenseRow";
 import { Expense } from "@/lib/types";
 
 interface ExpenseGroupProps {
